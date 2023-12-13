@@ -1,0 +1,173 @@
+<mxfile host="Electron" modified="2023-12-13T04:34:24.405Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" version="22.1.2" etag="fydV9WsW8xMVsMQiZAvo" type="device">
+  <diagram id="u4go_DSwc3ppoIr0tX9S" name="第 1 页">
+    <mxGraphModel dx="402" dy="1729" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TTRKs1US6kPR62ggMvcV-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-1" target="TTRKs1US6kPR62ggMvcV-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-1" target="TTRKs1US6kPR62ggMvcV-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.032;entryY=0.538;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-1" target="TTRKs1US6kPR62ggMvcV-16">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="1020" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="160" y="670" />
+              <mxPoint x="160" y="1013" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-1" value="Employees" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="640" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-2" target="TTRKs1US6kPR62ggMvcV-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="190" />
+              <mxPoint x="150" y="190" />
+              <mxPoint x="150" y="-140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-2" target="TTRKs1US6kPR62ggMvcV-20">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="190" />
+              <mxPoint x="150" y="190" />
+              <mxPoint x="150" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-2" target="TTRKs1US6kPR62ggMvcV-22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="190" />
+              <mxPoint x="150" y="190" />
+              <mxPoint x="150" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-2" value="Managers" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="170" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-3" target="TTRKs1US6kPR62ggMvcV-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-3" value="Administrators" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="650" y="180" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-5" value="Calculate employee&#39;s overtime work" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="-180" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-7" value="Check how much compensation leave there are" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="810" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-9" value="Apply annual leave" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="560" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-10" value="Apply medical leave" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="680" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-11" value="Apply compensation leave" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="810" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.01;entryY=0.575;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-1" target="TTRKs1US6kPR62ggMvcV-11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="670" />
+              <mxPoint x="160" y="856" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-15" value="include" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-11" target="TTRKs1US6kPR62ggMvcV-7">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="270" y="700" as="sourcePoint" />
+            <mxPoint x="430" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-16" value="Cancel leave application" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="970" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-18" value="View application" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="-70" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-19" value="Approve application" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="50" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-20" value="Reject application" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="170" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-22" value="Print one&#39;s consolidated leave reports" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="290" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.017;entryY=0.388;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-2" target="TTRKs1US6kPR62ggMvcV-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="190" />
+              <mxPoint x="150" y="190" />
+              <mxPoint x="150" y="-39" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.008;entryY=0.413;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-2" target="TTRKs1US6kPR62ggMvcV-19">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="190" />
+              <mxPoint x="150" y="190" />
+              <mxPoint x="150" y="83" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-27" value="Check if there is pending request" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="630" width="190" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-28" value="include" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.394;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="TTRKs1US6kPR62ggMvcV-27">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="350" y="599" as="sourcePoint" />
+            <mxPoint x="489" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-29" value="include" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.625;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="TTRKs1US6kPR62ggMvcV-27">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="350" y="720" as="sourcePoint" />
+            <mxPoint x="520" y="783" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-30" value="include" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="370" y="850" as="sourcePoint" />
+            <mxPoint x="520" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-31" value="create/delete employee" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="40" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-32" value="Manage approval hierarchy" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="310" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.625;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-3" target="TTRKs1US6kPR62ggMvcV-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-36" value="Update leave application" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="225" y="1089" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.006;entryY=0.588;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="TTRKs1US6kPR62ggMvcV-1" target="TTRKs1US6kPR62ggMvcV-36">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="670" />
+              <mxPoint x="160" y="1136" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-38" value="View personal leave history" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="1240" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="TTRKs1US6kPR62ggMvcV-41" value="assign roles" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="140" width="140" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

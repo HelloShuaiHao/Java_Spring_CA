@@ -1,0 +1,79 @@
+{\rtf1\ansi\ansicpg936\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset134 PingFangSC-Regular;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 enum Day \{\
+    SUNDAY(1),    // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 1
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 1\
+    MONDAY(2),    // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 2
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 2\
+    TUESDAY(3),   // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 3
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 3\
+    WEDNESDAY(4), // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 4
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 4\
+    THURSDAY(5),  // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 5
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 5\
+    FRIDAY(6),    // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 6
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 6\
+    SATURDAY(7);  // 
+\f1 \'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf
+\f0 7
+\f1 \'a3\'ac\'d6\'b8\'b6\'a8\'d6\'b5\'ce\'aa
+\f0 7\
+\
+    private final int value;\
+\
+    // 
+\f1 \'b9\'b9\'d4\'ec\'ba\'af\'ca\'fd\'a3\'ac\'d3\'c3\'d3\'da\'b3\'f5\'ca\'bc\'bb\'af\'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf\'b5\'c4\'d6\'b5
+\f0 \
+    private Day(int value) \{\
+        this.value = value;\
+    \}\
+\
+    // 
+\f1 \'bb\'f1\'c8\'a1\'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf\'b5\'c4\'d6\'b5
+\f0 \
+    public int getValue() \{\
+        return value;\
+    \}\
+\}\
+\
+public class EnumExample \{\
+    public static void main(String[] args) \{\
+        // 
+\f1 \'ca\'b9\'d3\'c3\'c3\'b6\'be\'d9\'b3\'a3\'c1\'bf\'b5\'c4\'d6\'b5
+\f0 \
+        Day today = Day.SUNDAY;\
+        System.out.println("
+\f1 \'bd\'f1\'cc\'ec\'ca\'c7\'a3\'ba
+\f0 " + today + "
+\f1 \'a3\'ac\'d6\'b5\'ce\'aa\'a3\'ba
+\f0 " + today.getValue()); // 
+\f1 \'ca\'e4\'b3\'f6\'a3\'ba\'bd\'f1\'cc\'ec\'ca\'c7\'a3\'ba
+\f0 SUNDAY
+\f1 \'a3\'ac\'d6\'b5\'ce\'aa\'a3\'ba
+\f0 1\
+    \}\
+\}\
+}
