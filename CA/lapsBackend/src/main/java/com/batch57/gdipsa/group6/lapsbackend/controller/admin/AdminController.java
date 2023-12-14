@@ -1,9 +1,8 @@
 package com.batch57.gdipsa.group6.lapsbackend.controller.admin;
 
 import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user.userInterface;
-import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
-import com.batch57.gdipsa.group6.lapsbackend.model.user.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.userRepository;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;

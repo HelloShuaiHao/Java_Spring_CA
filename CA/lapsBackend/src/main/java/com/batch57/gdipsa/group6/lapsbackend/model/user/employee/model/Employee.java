@@ -1,7 +1,8 @@
 package com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model;
 
+import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
-import com.batch57.gdipsa.group6.lapsbackend.model.user.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -19,6 +20,9 @@ public class Employee extends User {
 
     @OneToMany(mappedBy = "ledByManager", cascade = CascadeType.ALL)
     private Set<Department> leadDepartments;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private Set<Application> applications;
 
     public void setBelongToDepartment(Department belongToDepartment) {
         this.belongToDepartment = belongToDepartment;

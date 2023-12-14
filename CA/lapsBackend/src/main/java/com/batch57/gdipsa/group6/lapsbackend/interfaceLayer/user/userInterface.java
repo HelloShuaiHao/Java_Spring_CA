@@ -1,6 +1,6 @@
 package com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user;
 
-import com.batch57.gdipsa.group6.lapsbackend.model.user.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 
 import java.util.List;

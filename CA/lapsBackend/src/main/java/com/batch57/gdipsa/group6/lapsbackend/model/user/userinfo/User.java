@@ -1,6 +1,6 @@
 package com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo;
 
-import com.batch57.gdipsa.group6.lapsbackend.model.user.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
