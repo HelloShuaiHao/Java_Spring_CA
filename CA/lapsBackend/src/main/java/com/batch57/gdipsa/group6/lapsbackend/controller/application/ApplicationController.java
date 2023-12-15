@@ -3,6 +3,8 @@ package com.batch57.gdipsa.group6.lapsbackend.controller.application;
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.MEDICAL_LEAVE_MAXIMUM;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.OVERWORKING_UNIT;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.CompensationLeaveValidator;
@@ -68,27 +70,26 @@ public class ApplicationController {
     }
 
     /**
-     * 创建一个Application需要一个Employee对象(user_id), 两个时间(对输入进行解析)，一个EmployeeLeaveType,
+     * 创建一个Application需要一个Employee对象(user_id), 1个时间(对输入进行解析)，一个EmployeeLeaveType,
      * 如果是Compensation 的话，还需要声明起始点
      */
     @PostMapping("/create/{user_id}")
-    public ResponseEntity<Application> CreateApplication(@PathVariable("user_id") int user_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult) {
+    public ResponseEntity<?> CreateApplication(@PathVariable("user_id") int user_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult) {
         // user_id不存在
         Employee employee = employeeService.GetEmployeeById(user_id);
-        if(employee == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
+        if(employee == null) return new ResponseEntity<>("ERROR in finding employee", HttpStatus.NOT_FOUND);
 
         // 申请信息有错误
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
                 System.out.println(error.getDefaultMessage());
             });
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            String errMsg= "error in binding Application";
+            return new ResponseEntity<>(errMsg , HttpStatus.EXPECTATION_FAILED);
         }
 
-
         // 尝试构建新的申请表格
-        Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getToDate(), inApplication.getEmployeeLeaveType());
+        Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
 
 
@@ -96,11 +97,20 @@ public class ApplicationController {
         boolean isApplicable = booleanValue(CheckIfEmployeeIsApplicable(user_id).getBody()); // 检查有无已经提交的申请
         isApplicable = newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE? isApplicable && employee.isEntitlementToAnnualLeave() : isApplicable; // 检查是否entitled to annul leave
         if(!isApplicable) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>("Your are not applicable to this type of leave.", HttpStatus.EXPECTATION_FAILED);
         }
 
+        // 检查medical leave related的
+        if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.MEDICAL_LEAVE) {
+            if(newApplication.getDayOff()+employeeService.GetEmployeeMedicalLeave(user_id)/OVERWORKING_UNIT.UNIT.getValue() > MEDICAL_LEAVE_MAXIMUM.MAXIMUM.getValue()) {
+                String errMsg = "Medical leave can't exceed " + MEDICAL_LEAVE_MAXIMUM.MAXIMUM.getValue() + " in a calendar year";
+                return new ResponseEntity<>(errMsg,HttpStatus.EXPECTATION_FAILED);
+            }
+        }
 
         Application created =  applicationService.CreateNewApplication(newApplication);
+//        System.out.println(created.getDayOff());
+
         if(created == null) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }else {
@@ -128,7 +138,6 @@ public class ApplicationController {
     }
 
 
-
     /**
      * 根据编号删除application，如果成功，返回被删除对象。如果已经approved了，不能删除
      * @param application_id
@@ -139,7 +148,7 @@ public class ApplicationController {
         Application application = applicationService.GetApplicationById(application_id);
 
         // 通过了就不能删除
-        if(application.getApplicationStatus() == APPLICATION_STATUS.APPROVED) {
+        if(application.getApplicationStatus() == APPLICATION_STATUS.APPROVED || application.getApplicationStatus() == APPLICATION_STATUS.CANCELLED) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
 
@@ -227,6 +236,6 @@ public class ApplicationController {
                 .stream()
                 .anyMatch(a -> a.getApplicationStatus()==APPLICATION_STATUS.APPLIED || a.getApplicationStatus()==APPLICATION_STATUS.UPDATED);
 
-        return ResponseEntity.ok(isApplicable);
+        return ResponseEntity.ok(!isApplicable);
     }
 }

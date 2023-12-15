@@ -79,5 +79,16 @@ public class DepartmentController {
         }
     }
 
+    @GetMapping("/get-department-manger-by-id/{department_id}")
+    public ResponseEntity<Employee> GetDepartmentMangerByDepartmentId(@PathVariable("department_id") int department_id) {
+        Employee manager = repo.GetDepartmentMangerByDepartmentId(department_id);
+
+        if(manager == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }else {
+            return new ResponseEntity<>(manager, HttpStatus.OK);
+        }
+    }
+
 
 }

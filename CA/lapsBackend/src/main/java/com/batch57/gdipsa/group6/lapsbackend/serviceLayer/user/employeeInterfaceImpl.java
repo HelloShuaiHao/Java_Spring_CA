@@ -37,4 +37,14 @@ public class employeeInterfaceImpl implements employeeInterface {
     public List<Employee> GetAll() {
         return repo.findAll();
     }
+
+    @Override
+    public Integer GetEmployeeMedicalLeave(int user_id) {
+        return repo.GetEmployeeMedicalLeave(user_id);
+    }
+
+    @Override
+    public Integer GetOverworkingHourById(int user_id) {
+        return repo.GetOverworkingHourById(user_id);
+    }
 }

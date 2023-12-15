@@ -56,7 +56,7 @@ public class ApplicationInterfaceImplementation implements applicationInterface 
         Application updated = applicationRepo.findById(id).get();
         if(updated != null) {
             updated.setFromDate(application.getFromDate());
-            updated.setToDate(application.getToDate());
+            updated.setDayOff(application.getDayOff());
             updated.setEmployeeLeaveType(application.getEmployeeLeaveType());
 
             applicationRepo.save(updated);

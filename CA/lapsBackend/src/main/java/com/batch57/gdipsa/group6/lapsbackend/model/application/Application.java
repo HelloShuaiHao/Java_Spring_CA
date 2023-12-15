@@ -39,7 +39,7 @@ public class Application {
     LocalDate fromDate;// 开始日期，保证传入的都是合法的
 
     @NotNull
-    LocalDate toDate; // 结束日期
+    Integer dayOff;
 
     @NotNull
     EMPLOYEE_LEAVE_TYPE employeeLeaveType; // 什么类新的假期
@@ -53,13 +53,10 @@ public class Application {
     public Application() {
     }
 
-    public Application(Employee employee, LocalDate fromDate, LocalDate toDate, EMPLOYEE_LEAVE_TYPE employeeLeaveType) {
-        if(fromDate.isAfter(toDate)) {
-            throw new IllegalArgumentException("Start date must be earlier than the end date.");
-        }
+    public Application(Employee employee, LocalDate fromDate, Integer dayOff, EMPLOYEE_LEAVE_TYPE employeeLeaveType) {
         this.employee = employee;
         this.fromDate = fromDate;
-        this.toDate = toDate;
+        this.dayOff = dayOff;
         this.employeeLeaveType = employeeLeaveType;
 
         // 默认开始为applied
@@ -79,22 +76,7 @@ public class Application {
     }
 
     public void setFromDate(LocalDate fromDate) {
-        if(fromDate != null && this.toDate != null && fromDate.isAfter(this.toDate)) {
-            throw new IllegalArgumentException("Start date must be earlier than the end date.");
-        }
-
         this.fromDate = fromDate;
-    }
-
-    public LocalDate getToDate() {
-        return toDate;
-    }
-
-    public void setToDate(LocalDate toDate) {
-        if(toDate!=null && this.fromDate!=null && fromDate.isAfter(toDate)) {
-            throw new IllegalArgumentException("Start date must be earlier than the end date.");
-        }
-        this.toDate = toDate;
     }
 
     public EMPLOYEE_LEAVE_TYPE getEmployeeLeaveType() {
@@ -119,5 +101,13 @@ public class Application {
 
     public void setCompensationStartPoint(COMPENSATION_START_POINT compensationStartPoint) {
         this.compensationStartPoint = compensationStartPoint;
+    }
+
+    public Integer getDayOff() {
+        return dayOff;
+    }
+
+    public void setDayOff(Integer dayOff) {
+        this.dayOff = dayOff;
     }
 }

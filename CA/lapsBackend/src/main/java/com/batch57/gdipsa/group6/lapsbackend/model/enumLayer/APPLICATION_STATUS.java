@@ -4,7 +4,7 @@ public enum APPLICATION_STATUS {
     APPLIED,
     UPDATED,
     DELETED,
-    CANCEL,
+    CANCELLED,
     APPROVED,
     REJECTED
 }

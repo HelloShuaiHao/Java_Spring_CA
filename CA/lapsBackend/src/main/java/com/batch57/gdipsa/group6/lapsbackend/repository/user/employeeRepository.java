@@ -12,4 +12,14 @@ public interface employeeRepository extends JpaRepository<Employee, Integer> {
     @Modifying
     @Query("update Employee e set e.entitlementToAnnualLeave=:entitled where e.user_id=:id")
     void UpdateEntitlement(@Param("id") int id, @Param("entitled") boolean entitled);
+
+    /**
+     * 返回某用户的medical leave
+     */
+    @Query("select e.calenderYearMedicalLeave from Employee e where e.user_id = ?1")
+    Integer GetEmployeeMedicalLeave(int user_id);
+
+    @Query("select e.overworkingHour from Employee e where e.user_id = ?1")
+    Integer GetOverworkingHourById(int user_id);
+
 }
