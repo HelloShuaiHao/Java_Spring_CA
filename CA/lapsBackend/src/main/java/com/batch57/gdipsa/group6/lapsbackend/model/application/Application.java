@@ -31,7 +31,7 @@ public class Application {
     private Integer application_id;
 
     // 这里一定不会空，因为如果查不到用户，直接返回失败
-    @JsonIgnore
+    @JsonProperty("employee_info")
     @ManyToOne
     private Employee employee; // 由谁发起的
 

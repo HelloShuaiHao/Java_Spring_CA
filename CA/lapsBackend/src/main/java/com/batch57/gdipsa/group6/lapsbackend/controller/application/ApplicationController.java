@@ -2,6 +2,7 @@ package com.batch57.gdipsa.group6.lapsbackend.controller.application;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.CompensationLeaveValidator;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.aspectj.runtime.internal.Conversions.booleanValue;
 
 /**
  * 可以在JSON中使用ISO 8601日期时间格式，这是标准的日期时间表示方法，
@@ -74,7 +78,6 @@ public class ApplicationController {
         if(employee == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
 
-
         // 申请信息有错误
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
@@ -83,8 +86,19 @@ public class ApplicationController {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
 
+
+        // 尝试构建新的申请表格
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getToDate(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
+
+
+        // 检查该用户有无申请资格
+        boolean isApplicable = booleanValue(CheckIfEmployeeIsApplicable(user_id).getBody()); // 检查有无已经提交的申请
+        isApplicable = newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE? isApplicable && employee.isEntitlementToAnnualLeave() : isApplicable; // 检查是否entitled to annul leave
+        if(!isApplicable) {
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
 
         Application created =  applicationService.CreateNewApplication(newApplication);
         if(created == null) {
@@ -144,7 +158,7 @@ public class ApplicationController {
      * @param user_id
      * @return
      */
-    @GetMapping("/get-application-by-employedd-id/{user_id}")
+    @GetMapping("/get-application-by-employee-id/{user_id}")
     public ResponseEntity<List<Application>> GetApplicationByEmployeeId(@PathVariable("user_id") int user_id) {
         List<Application> applications = applicationService.GetApplicationByEmployeeId(user_id);
         if(applications == null) {
@@ -152,6 +166,17 @@ public class ApplicationController {
         }else {
             return new ResponseEntity<>(applications, HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/get-application-by-employee-id-status/{user_id}/{status}")
+    public ResponseEntity<List<Application>> GetApplicationByEmployeeIdAndStatus(@PathVariable("user_id") int user_id, @PathVariable("status") APPLICATION_STATUS status) {
+        List<Application> applications = GetApplicationByEmployeeId(user_id).getBody();
+        applications = applications
+                .stream()
+                .filter(a -> a.getApplicationStatus()==status)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
     /**
@@ -171,4 +196,37 @@ public class ApplicationController {
     }
 
 
+    /**
+     * 会把status自动解析成APPLICATION_STATUS，
+     * 如果失败直接返回失败
+     * @param status
+     * @return
+     */
+    @GetMapping("/get-application-by-department-id-status/{department_id}/{status}")
+    public ResponseEntity<List<Application>> GetApplicationByDepartmentIdAndStatus(@PathVariable("department_id") int department_id, @PathVariable("status") APPLICATION_STATUS status) {
+        List<Application> applications = GetApplicationByDepartmentId(department_id).getBody();
+
+        applications = applications
+                .stream()
+                .filter(a -> a.getApplicationStatus()==status)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
+
+    /**
+     * 检查某个用户是否有资格提交申请
+     * @param user_id
+     * @return
+     */
+    @GetMapping("/is-applicable/{user_id}")
+    public ResponseEntity<Boolean> CheckIfEmployeeIsApplicable(@PathVariable("user_id") int user_id ) {
+        List<Application> applications = GetApplicationByEmployeeId(user_id).getBody();
+        boolean isApplicable = applications
+                .stream()
+                .anyMatch(a -> a.getApplicationStatus()==APPLICATION_STATUS.APPLIED || a.getApplicationStatus()==APPLICATION_STATUS.UPDATED);
+
+        return ResponseEntity.ok(isApplicable);
+    }
 }

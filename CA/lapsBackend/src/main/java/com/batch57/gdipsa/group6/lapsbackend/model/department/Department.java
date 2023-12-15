@@ -3,12 +3,14 @@ package com.batch57.gdipsa.group6.lapsbackend.model.department;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.internal.util.beans.BeanInfoHelper;
+import org.springframework.util.CollectionUtils;
 
+import java.beans.beancontext.BeanContext;
 import java.util.Set;
 
 @Entity
@@ -18,13 +20,13 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @JsonProperty("led_by_manager_user_id") // retrieve这个对象的时候，会把这个属性一起返回
-    @ManyToOne
     @JsonIgnore
+    @JsonProperty("led_by_manager_user_id") // retrieve这个对象的时候，会把这个属性一起返回
+    @ManyToOne()
     private Employee ledByManager;
 
-    @OneToMany(mappedBy = "belongToDepartment", cascade = CascadeType.ALL)
     @JsonIgnore
+    @OneToMany(mappedBy = "belongToDepartment", cascade = CascadeType.ALL)
     private Set<Employee> employees;
 
 
@@ -32,6 +34,8 @@ public class Department {
     @NotBlank(message = "Name is required")
     @Size(min=3,max=20, message = "Name must be 3-20 characters")
     private String name;
+
+
 
     public Department() {
     }
@@ -50,5 +54,12 @@ public class Department {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+
+    public Set<Employee> getEmployees() {
+        if(!CollectionUtils.isEmpty(this.employees)) {
+        }
+        return employees;
     }
 }

@@ -4,8 +4,7 @@ import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -15,12 +14,12 @@ public class Employee extends User {
     // 默认为true
     private boolean entitlementToAnnualLeave;
 
-    @JsonIgnore
+//    @JsonIgnore
     @JsonProperty("belongToDepartment") // 对于这种reference外table的property，默认是不会打印的
-    @ManyToOne
+    @ManyToOne()
     private Department belongToDepartment;
 
-    @JsonIgnore // 防止无限recursion
+    @JsonIgnore
     @OneToMany(mappedBy = "ledByManager", cascade = CascadeType.ALL)
     private Set<Department> leadDepartments;
 
@@ -48,4 +47,6 @@ public class Employee extends User {
     public void setEntitlementToAnnualLeave(boolean entitlementToAnnualLeave) {
         this.entitlementToAnnualLeave = entitlementToAnnualLeave;
     }
+
+
 }
