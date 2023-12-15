@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -42,7 +43,12 @@ public class ApplicationInterfaceImplementation implements applicationInterface 
     @Override
     public Application DeleteApplicationById(int id) {
         applicationRepo.deleteById(id);
-        return applicationRepo.findById(id).get();
+        Optional<Application> updated = applicationRepo.findById(id);
+        if(updated.isPresent()) {
+            return updated.get();
+        }else {
+            return null;
+        }
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.batch57.gdipsa.group6.lapsbackend.model.application;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.COMPENSATION_START_POINT;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +30,8 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer application_id;
 
-    @NotNull
+    // 这里一定不会空，因为如果查不到用户，直接返回失败
+    @JsonIgnore
     @ManyToOne
     private Employee employee; // 由谁发起的
 
@@ -41,8 +44,11 @@ public class Application {
     @NotNull
     EMPLOYEE_LEAVE_TYPE employeeLeaveType; // 什么类新的假期
 
-    @NotNull
+    // 这里一定不会空，因为初始状态为applied
     APPLICATION_STATUS applicationStatus;
+
+    // 以下字段是跟compensation leave 相关的
+    COMPENSATION_START_POINT compensationStartPoint;
 
     public Application() {
     }
@@ -97,5 +103,21 @@ public class Application {
 
     public void setEmployeeLeaveType(EMPLOYEE_LEAVE_TYPE employeeLeaveType) {
         this.employeeLeaveType = employeeLeaveType;
+    }
+
+    public APPLICATION_STATUS getApplicationStatus() {
+        return applicationStatus;
+    }
+
+    public void setApplicationStatus(APPLICATION_STATUS applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public COMPENSATION_START_POINT getCompensationStartPoint() {
+        return compensationStartPoint;
+    }
+
+    public void setCompensationStartPoint(COMPENSATION_START_POINT compensationStartPoint) {
+        this.compensationStartPoint = compensationStartPoint;
     }
 }

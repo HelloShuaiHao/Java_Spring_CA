@@ -56,9 +56,11 @@ public class EmployeeController {
     public ResponseEntity<Employee> SetEmployeeForDepartment(@PathVariable("department_id") int department_id, @PathVariable("user_id") int user_id ) {
         Department department = departmentService.GetDepartmentById(department_id);
         Employee employee = employeeService.GetEmployeeById(user_id);
+
         employee.setBelongToDepartment(department);
 
         Employee updated = employeeService.GetEmployeeById(user_id);
+
         if(updated == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }else {

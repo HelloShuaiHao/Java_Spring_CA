@@ -3,6 +3,7 @@ package com.batch57.gdipsa.group6.lapsbackend.model.department;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -19,9 +20,11 @@ public class Department {
 
     @JsonProperty("led_by_manager_user_id") // retrieve这个对象的时候，会把这个属性一起返回
     @ManyToOne
+    @JsonIgnore
     private Employee ledByManager;
 
     @OneToMany(mappedBy = "belongToDepartment", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Employee> employees;
 
 
