@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -102,7 +103,6 @@ public class EmployeeController {
         return employeeService.GetEmployeeById(user_id).getBelongToDepartment().getId();
     }
 
-
     @GetMapping("/get-superior/{user_id}")
     public ResponseEntity<?> GetSuperior(@PathVariable("user_id") int user_id) {
         int department_id = GetEmployeeDepartmentId(user_id);
@@ -121,9 +121,56 @@ public class EmployeeController {
             // 返回更高部门的领导者
             return new ResponseEntity<>(includedByDepartment.getLedByManager(), HttpStatus.OK);
         }else {
+            // 不是所在部门的领导，直接返回所在部门的领导
             return new ResponseEntity<>(cur.getLedByManager(), HttpStatus.OK);
         }
     }
 
+    @GetMapping("/get-employees-by-department-id/{department_id}")
+    public ResponseEntity<?> GetEmployeesByDepartmentId(@PathVariable("department_id") int department_id) {
+        Department department = departmentService.GetDepartmentById(department_id);
+        if(department == null) {
+            // department not found
+            return new ResponseEntity<>("The department you are looking for is not found", HttpStatus.NOT_FOUND);
+        }
 
+        List<Employee> employees = departmentService.GetEmployeesByDepartmentId(department_id);
+        if(employees.isEmpty()) {
+            return new ResponseEntity<>("The department has no employees", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-employees-sub-managers-by-department-id/{department_id}")
+    public ResponseEntity<?> GetEmployeesAndSubManagerByDepartmentId(@PathVariable("department_id") int department_id) {
+        Department department = departmentService.GetDepartmentById(department_id);
+        if(department == null) {
+            // department not found
+            return new ResponseEntity<>("The department you are looking for is not found", HttpStatus.NOT_FOUND);
+        }
+
+        List<Employee> employees = departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id);
+        if(employees.isEmpty()) {
+            return new ResponseEntity<>("The department has no employees", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+
+//    @GetMapping("/get-subordinates/{user_id}")
+//    public ResponseEntity<?> GetSubordinates(@PathVariable("user_id")int user_id) {
+//        Employee employee = employeeService.GetEmployeeById(user_id);
+//        Department department = departmentService.GetDepartmentById(employee.getBelongToDepartment().getId());
+//
+//        if(department.getLedByManager().getUser_id() != user_id) {
+//            // 不是manager
+//            return new ResponseEntity<>("Can't find a subordinate.", HttpStatus.NOT_FOUND);
+//        }else {
+//            // 是manager
+//            List<Employee> subordinates = new ArrayList<>();
+//
+//        }
+//    }
 }
