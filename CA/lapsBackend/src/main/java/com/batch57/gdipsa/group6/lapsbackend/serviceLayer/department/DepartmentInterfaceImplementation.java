@@ -31,4 +31,13 @@ public class DepartmentInterfaceImplementation implements departmentInterface {
     public Employee GetDepartmentMangerByDepartmentId(int departmentId) {
         return repo.GetDepartmentMangerByDepartmentId(departmentId);
     }
+
+    @Override
+    public Department AddSubDepartment(int super_department_id, int sub_department_id) {
+        Department superDepartment = GetDepartmentById(super_department_id);
+        Department subDepartment = GetDepartmentById(sub_department_id);
+
+        subDepartment.setIncludedBy(superDepartment);
+        return repo.save(subDepartment);
+    }
 }

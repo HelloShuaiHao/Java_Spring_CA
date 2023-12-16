@@ -36,6 +36,23 @@ public class Department {
     private String name;
 
 
+    /**
+     * 修改公司组织架构，一个Department 可以囊括多个Department
+     */
+    @JsonIgnore
+    @OneToMany(mappedBy = "includedBy", cascade = CascadeType.ALL)
+    private Set<Department> includesDepartments;
+
+    @ManyToOne
+    private Department includedBy;
+
+
+
+    // getter and setter
+
+    public String getName() {
+        return name;
+    }
 
     public Department() {
     }
@@ -48,18 +65,26 @@ public class Department {
         this.ledByManager = ledByManager;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-
-    public Set<Employee> getEmployees() {
-        if(!CollectionUtils.isEmpty(this.employees)) {
-        }
-        return employees;
+    public int getId() {
+        return id;
     }
+
+    public Employee getLedByManager() {
+        return ledByManager;
+    }
+
+    public Department getIncludedBy() {
+        return includedBy;
+    }
+
+    public void setIncludedBy(Department includedBy) {
+        this.includedBy = includedBy;
+    }
+
+
+
 }

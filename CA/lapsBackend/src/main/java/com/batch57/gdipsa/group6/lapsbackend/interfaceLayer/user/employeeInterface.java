@@ -11,4 +11,6 @@ public interface employeeInterface {
     List<Employee> GetAll();
     Integer GetEmployeeMedicalLeave(int user_id);
     Integer GetOverworkingHourById(int user_id);
+
+    Employee IncrementOverworkingHour(int user_id, int increment_hour);
 }

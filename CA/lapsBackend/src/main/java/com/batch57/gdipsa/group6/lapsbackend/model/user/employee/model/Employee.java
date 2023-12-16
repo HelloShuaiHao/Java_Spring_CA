@@ -70,4 +70,27 @@ public class Employee extends User {
     }
 
 
+    public Department getBelongToDepartment() {
+        return belongToDepartment;
+    }
+
+    public Set<Department> getLeadDepartments() {
+        return leadDepartments;
+    }
+
+    public Set<Application> getApplications() {
+        return applications;
+    }
+
+    public Integer getCalenderYearMedicalLeave() {
+        return calenderYearMedicalLeave;
+    }
+
+    public Integer getOverworkingHour() {
+        return overworkingHour;
+    }
+
+    public void setOverworkingHour(Integer overworkingHour) {
+        this.overworkingHour = overworkingHour;
+    }
 }

@@ -1,4 +1,4 @@
-package com.batch57.gdipsa.group6.lapsbackend.controller.admin;
+package com.batch57.gdipsa.group6.lapsbackend.controller.employee;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
@@ -91,6 +91,38 @@ public class EmployeeController {
             return new ResponseEntity<>(updated, HttpStatus.OK);
         }
 
+    }
+
+    /**
+     * 让其他类来调用的静态方法，返回一个user_id的department id
+     * @param user_id
+     * @return
+     */
+    public Integer GetEmployeeDepartmentId(int user_id) {
+        return employeeService.GetEmployeeById(user_id).getBelongToDepartment().getId();
+    }
+
+
+    @GetMapping("/get-superior/{user_id}")
+    public ResponseEntity<?> GetSuperior(@PathVariable("user_id") int user_id) {
+        int department_id = GetEmployeeDepartmentId(user_id);
+        int department_manager_id = departmentService.GetDepartmentById(department_id).getLedByManager().getUser_id();
+
+        Department cur = departmentService.GetDepartmentById(department_id);
+
+        if(department_manager_id == user_id) {
+            // 当前查询的用户所在的部门的领导是这个用户 返回它的上一级领导
+            // 当前部门是被哪个更大的部门给include的
+            Department includedByDepartment = cur.getIncludedBy();
+            if(includedByDepartment == null){
+                // 老板没有上级 返回失败
+                return new ResponseEntity<>("Boss doesn't have a superior", HttpStatus.NOT_FOUND);
+            }
+            // 返回更高部门的领导者
+            return new ResponseEntity<>(includedByDepartment.getLedByManager(), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(cur.getLedByManager(), HttpStatus.OK);
+        }
     }
 
 

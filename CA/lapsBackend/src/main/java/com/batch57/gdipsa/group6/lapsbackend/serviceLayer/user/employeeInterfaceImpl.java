@@ -47,4 +47,11 @@ public class employeeInterfaceImpl implements employeeInterface {
     public Integer GetOverworkingHourById(int user_id) {
         return repo.GetOverworkingHourById(user_id);
     }
+
+    @Override
+    public Employee IncrementOverworkingHour(int user_id, int increment_hour) {
+        Employee employee = GetEmployeeById(user_id);
+        employee.setOverworkingHour(employee.getOverworkingHour()+increment_hour);
+        return repo.save(employee);
+    }
 }

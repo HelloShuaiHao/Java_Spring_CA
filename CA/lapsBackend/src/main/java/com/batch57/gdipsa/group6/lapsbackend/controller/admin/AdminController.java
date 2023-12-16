@@ -111,20 +111,20 @@ public class AdminController {
      * @param user_id
      * @return
      */
-    @GetMapping("/create-employee-by-id/{user_id}")
-    public ResponseEntity<Employee> CreateEmployee(@PathVariable("user_id") int user_id) {
-        User u = userService.GetUserById(user_id);
-
-        Employee emp = new Employee(u.getName(), u.getPassword(), u.getUserType());
-        emp.setUser_id(u.getUser_id());
-        EmployeeService.CreateEmployee(emp);
-
-        if(u == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }else{
-            return new ResponseEntity<>(emp, HttpStatus.OK);
-        }
-    }
+//    @GetMapping("/create-employee-by-id/{user_id}")
+//    public ResponseEntity<Employee> CreateEmployee(@PathVariable("user_id") int user_id) {
+//        User u = userService.GetUserById(user_id);
+//
+//        Employee emp = new Employee(u.getName(), u.getPassword(), u.getUserType());
+//        emp.setUser_id(u.getUser_id());
+//        EmployeeService.CreateEmployee(emp);
+//
+//        if(u == null) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }else{
+//            return new ResponseEntity<>(emp, HttpStatus.OK);
+//        }
+//    }
 
     /**
      * 同时创建user和employee

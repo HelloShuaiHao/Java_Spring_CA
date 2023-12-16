@@ -1,4 +1,4 @@
-package com.batch57.gdipsa.group6.lapsbackend.controller.admin;
+package com.batch57.gdipsa.group6.lapsbackend.controller.department;
 
 import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.department.departmentInterface;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
@@ -89,6 +89,20 @@ public class DepartmentController {
             return new ResponseEntity<>(manager, HttpStatus.OK);
         }
     }
+
+
+    @GetMapping("/add-sub-department/{super_department_id}/{sub_department_id}")
+    public ResponseEntity<?> AddSubDepartment(@PathVariable("super_department_id") int super_department_id, @PathVariable("sub_department_id") int sub_department_id) {
+        Department updated = departmentService.AddSubDepartment(super_department_id, sub_department_id);
+
+        if(updated == null) {
+            return new ResponseEntity<>("Adding sub department failed for some reasons, please do it again.", HttpStatus.EXPECTATION_FAILED);
+        }else {
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+        }
+    }
+
+
 
 
 }
