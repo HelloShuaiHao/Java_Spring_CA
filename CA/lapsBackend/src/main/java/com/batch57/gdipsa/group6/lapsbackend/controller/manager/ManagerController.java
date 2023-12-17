@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/manager")
 public class ManagerController {
@@ -61,19 +63,24 @@ public class ManagerController {
             return new ResponseEntity<>("You are not a manager!", HttpStatus.EXPECTATION_FAILED);
         }
 
+        // 判断是不是在修改自己
         if(user_id == manager_id) {
             return new ResponseEntity<>("You can't modify your own record! Please contact to your leader to modify.", HttpStatus.EXPECTATION_FAILED);
         }
 
-        int employee_department_id = employeeService.GetEmployeeById(user_id).getBelongToDepartment().getId();
-        if(manager_department_id != employee_department_id) {
-            return new ResponseEntity<>("You don't have the permission to this department.", HttpStatus.EXPECTATION_FAILED);
+        // 获取当前manager手下所有可以管理的员工
+        List<Employee> subordinates = departmentService.GetEmployeesByDepartmentId(manager_department_id);
+        boolean isContained = subordinates
+                .stream()
+                .anyMatch(s -> s.getUser_id()==user_id);
+        if(!isContained) {
+            return new ResponseEntity<>("You don't have the permission for this employeee.", HttpStatus.OK);
         }
 
+        // 判断小时是不是为正整数
         if(hour <= 0) return new ResponseEntity<>("Hour must be a positive number", HttpStatus.EXPECTATION_FAILED);
 
+        // 调用底层的数据库服务
         return new ResponseEntity<>(employeeService.IncrementOverworkingHour(user_id, hour), HttpStatus.OK);
     }
-
-
 }

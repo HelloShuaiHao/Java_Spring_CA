@@ -47,7 +47,11 @@ public class ApplicationController {
     @Autowired
     private ApplicationInterfaceImplementation applicationService;
 
+
     // compensation检查器
+    /**
+     * 这个检测器是：如果申请里是Compensation leave, 那么起始点也是必须要填的
+     */
     @Autowired
     private CompensationLeaveValidator compensationLeaveValidator;
     @InitBinder
@@ -56,7 +60,7 @@ public class ApplicationController {
     }
 
     /**
-     * 列出所有元素
+     * 列出所有数据库里的申请
      * @return
      */
     @GetMapping("/list")
@@ -77,7 +81,7 @@ public class ApplicationController {
     public ResponseEntity<?> CreateApplication(@PathVariable("user_id") int user_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult) {
         // user_id不存在
         Employee employee = employeeService.GetEmployeeById(user_id);
-        if(employee == null) return new ResponseEntity<>("ERROR in finding employee", HttpStatus.NOT_FOUND);
+        if(employee == null) return new ResponseEntity<>("ERROR in binding employee", HttpStatus.NOT_FOUND);
 
         // 申请信息有错误
         if (bindingResult.hasErrors()) {
@@ -85,19 +89,23 @@ public class ApplicationController {
                 System.out.println(error.getDefaultMessage());
             });
             String errMsg= "error in binding Application";
-            return new ResponseEntity<>(errMsg , HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>(bindingResult , HttpStatus.EXPECTATION_FAILED);
         }
 
         // 尝试构建新的申请表格
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
 
-
         // 检查该用户有无申请资格
         boolean isApplicable = booleanValue(CheckIfEmployeeIsApplicable(user_id).getBody()); // 检查有无已经提交的申请
         isApplicable = newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE? isApplicable && employee.isEntitlementToAnnualLeave() : isApplicable; // 检查是否entitled to annul leave
         if(!isApplicable) {
             return new ResponseEntity<>("Your are not applicable to this type of leave.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 如果是compensation 的话，检查有无超过最大的允许unit：overworking/unit_time
+        if(isExceedMaximumCompensationUnit(employee, newApplication)){
+            return new ResponseEntity<>("Day off exceeds maximum compensation units allowed.", HttpStatus.EXPECTATION_FAILED);
         }
 
         // 检查medical leave related的
@@ -109,7 +117,6 @@ public class ApplicationController {
         }
 
         Application created =  applicationService.CreateNewApplication(newApplication);
-//        System.out.println(created.getDayOff());
 
         if(created == null) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
@@ -226,6 +233,7 @@ public class ApplicationController {
 
     /**
      * 检查某个用户是否有资格提交申请
+     * 判断条件是有没有活跃的申请
      * @param user_id
      * @return
      */
@@ -237,5 +245,23 @@ public class ApplicationController {
                 .anyMatch(a -> a.getApplicationStatus()==APPLICATION_STATUS.APPLIED || a.getApplicationStatus()==APPLICATION_STATUS.UPDATED);
 
         return ResponseEntity.ok(!isApplicable);
+    }
+
+
+    /**
+     * 以下逻辑处理一个employee最多能申请几个compensation leave unit
+     */
+    public Boolean isExceedMaximumCompensationUnit(Employee employee, Application application) {
+
+        // 获取他的overworking时长
+        Integer employee_overworking_hour = employee.getOverworkingHour();
+        // 计算它有几个unit
+        Integer compensation_unit = employee_overworking_hour/ OVERWORKING_UNIT.UNIT.getValue();
+        // 这里默认申请compensation的dayOFF的day的意思是half day
+        if(application.getDayOff() > compensation_unit) {
+            return true;
+        }
+
+        return false;
     }
 }
