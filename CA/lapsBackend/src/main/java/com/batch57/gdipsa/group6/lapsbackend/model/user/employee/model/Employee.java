@@ -4,11 +4,13 @@ import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -35,6 +37,10 @@ public class Employee extends User {
     Integer calenderYearMedicalLeave; // 记录medical leave时常
     @JsonProperty("over_working_hour")
     Integer overworkingHour;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    List<EmployeeSchedule> schedules;
+
 
     public void setBelongToDepartment(Department belongToDepartment) {
         this.belongToDepartment = belongToDepartment;

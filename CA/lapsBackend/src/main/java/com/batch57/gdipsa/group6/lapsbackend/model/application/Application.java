@@ -2,6 +2,7 @@ package com.batch57.gdipsa.group6.lapsbackend.model.application;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.COMPENSATION_START_POINT;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,6 +50,10 @@ public class Application {
 
     // 以下字段是跟compensation leave 相关的
     COMPENSATION_START_POINT compensationStartPoint;
+
+    // 以下字段是这个申请通过了以后具体的放假安排
+    @OneToOne
+    EmployeeSchedule schedule;
 
     public Application() {
     }
@@ -110,4 +115,14 @@ public class Application {
     public void setDayOff(Integer dayOff) {
         this.dayOff = dayOff;
     }
+
+    public EmployeeSchedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(EmployeeSchedule schedule) {
+        this.schedule = schedule;
+    }
+
+
 }
