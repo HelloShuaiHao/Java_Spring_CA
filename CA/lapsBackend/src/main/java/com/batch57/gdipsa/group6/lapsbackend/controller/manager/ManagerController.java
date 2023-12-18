@@ -1,7 +1,11 @@
 package com.batch57.gdipsa.group6.lapsbackend.controller.manager;
 
 import com.batch57.gdipsa.group6.lapsbackend.controller.employee.EmployeeController;
+import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.OVERWORKING_UNIT;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
@@ -40,6 +44,11 @@ public class ManagerController {
         }
     }
 
+    /**
+     * 判断是否为manager
+     * @param user_id
+     * @return
+     */
     public Integer isManager(int user_id) {
         // 需要先获得employee所在的department
         Employee employee = employeeService.GetEmployeeById(user_id);
@@ -82,5 +91,101 @@ public class ManagerController {
 
         // 调用底层的数据库服务
         return new ResponseEntity<>(employeeService.IncrementOverworkingHour(user_id, hour), HttpStatus.OK);
+    }
+
+    /**
+     * 更改某个申请的状态
+     * 并且在RequestHeader里面有{manager_id} {application_id} 和 {status}, 其中application_status要遵循enum格式,
+     * 表示manager_id的用户 要修改application_id的申请状态为status
+     */
+    @GetMapping("/update-application-status")
+    public ResponseEntity<?> UpdateApplicationStatus(@RequestHeader("manager_id") int manager_id, @RequestHeader("application_id") int application_id ,@RequestHeader("status") APPLICATION_STATUS status) {
+        // 获取发起请求的对象
+        Employee manager = employeeService.GetEmployeeById(manager_id);
+        if(manager == null) return new ResponseEntity<>("Please input a valid user ID", HttpStatus.NOT_FOUND);
+
+        // 获取想修改的application
+        Application application = applicationService.GetApplicationById(application_id);
+        EMPLOYEE_LEAVE_TYPE leaveType = application.getEmployeeLeaveType();
+
+        // 获取发起请求的人 所领导的部门 ，如果不是manager返回-1
+        Integer leadDepartment = isManager(manager_id);
+        if(leadDepartment == -1) return new ResponseEntity<>("You don't have any subordinate", HttpStatus.NOT_FOUND);
+
+        // 获取这个申请所属的员工
+        Employee employee = application.getEmployee();
+
+        // 获取这个员工的直接领导者
+        Employee superior = employeeService.GetSuperior(employee.getUser_id());
+        if(superior == null) {
+            // 没有找到直接领导者
+            return new ResponseEntity<>("The superior of employee " + employee.getUser_id() + " can't be found", HttpStatus.NOT_FOUND);
+        }
+
+        if(superior.getUser_id() != manager_id) {
+            return new ResponseEntity<>("You don't have the permission for this employee, please contact the direct manager", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 尝试修改申请状态
+
+        // 如果状态已经为Cancelled了，那就不能继续其他操作了
+        APPLICATION_STATUS curStatus = application.getApplicationStatus();
+        if(curStatus == APPLICATION_STATUS.CANCELLED) {
+            return new ResponseEntity<>("This application has already been cancelled and can't be moved forward", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // [approved] -> [cancelled]
+        if( (curStatus == APPLICATION_STATUS.APPROVED) && status == APPLICATION_STATUS.CANCELLED) {
+            application.setApplicationStatus(status);
+
+            // 如果是compensation leave的话需要重新恢复employee的overworking time
+            if(leaveType == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
+                employee.setOverworkingHour(employee.getOverworkingHour() + application.getDayOff()* OVERWORKING_UNIT.UNIT.getValue());
+
+            }
+
+            // 如果是annual leave的话需要重新恢复employee的entitlement
+            if(leaveType == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE) {
+                employee.setEntitlementToAnnualLeave(true);
+            }
+
+            // 如果是medical leave的话需要重新减去它的总medical时间
+            if(leaveType == EMPLOYEE_LEAVE_TYPE.MEDICAL_LEAVE) {
+                employee.setCalenderYearMedicalLeave(employee.getCalenderYearMedicalLeave() - application.getDayOff());
+            }
+
+            employeeService.UpdateEmployee(employee);
+            return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
+        }
+
+        // 不能重复设置applied
+        if( (curStatus == APPLICATION_STATUS.APPLIED || curStatus == APPLICATION_STATUS.UPDATED) && status == APPLICATION_STATUS.APPLIED) {
+            return new ResponseEntity<>("One application can't not be set to applied again.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // [applied/updated] -> [approved/rejected]
+        if( (curStatus == APPLICATION_STATUS.APPLIED || curStatus == APPLICATION_STATUS.UPDATED) && (status != APPLICATION_STATUS.CANCELLED)) {
+            application.setApplicationStatus(status);
+
+            if(status == APPLICATION_STATUS.APPROVED){
+                if(leaveType == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE){
+                    // 判断逻辑，如果通过了一个compensation leave 需要减去该employee的加班时间
+                    employee.setOverworkingHour(employee.getOverworkingHour() - application.getDayOff()*OVERWORKING_UNIT.UNIT.getValue());
+                }
+                if(leaveType == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE){
+                    // 判断逻辑，如果通过了一个annual leave 需要禁用当年的entitlement to annual leave
+                    employee.setEntitlementToAnnualLeave(false);
+                }
+                if(leaveType == EMPLOYEE_LEAVE_TYPE.MEDICAL_LEAVE){
+                    // 判断逻辑，如果通过了一个medical leave 需要加上该employee的medical leave时间
+                    employee.setCalenderYearMedicalLeave(employee.getCalenderYearMedicalLeave() + application.getDayOff());
+                }
+
+            }
+            employeeService.UpdateEmployee(employee);
+            return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(curStatus + " -> " + status + " is not allowed", HttpStatus.EXPECTATION_FAILED);
     }
 }

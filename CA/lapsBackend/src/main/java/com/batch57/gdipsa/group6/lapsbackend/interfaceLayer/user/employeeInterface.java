@@ -12,4 +12,8 @@ public interface employeeInterface {
     Integer GetEmployeeMedicalLeave(int user_id);
     Integer GetOverworkingHourById(int user_id);
     Employee IncrementOverworkingHour(int user_id, int increment_hour);
+    Integer isManager(int user_id);
+    Employee GetSuperior(int user_id);
+    Integer GetEmployeeDepartmentId(int user_id);
+    Employee UpdateEmployee(Employee employee);
 }

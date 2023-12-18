@@ -9,10 +9,9 @@ public interface applicationInterface {
     List<Application> GetAllApplication();
     Application GetApplicationById(int id);
     Application DeleteApplicationById(int id);
-//    Application UpdateFromDateById(int id, LocalDateTime fromDate);
-//    Application UpdateToDateById(int id, LocalDateTime toDate);
-//    Application UpdateLeaveTypeById(int id, EMPLOYEE_LEAVE_TYPE leaveType);
     Application UpdateApplicationById(int id, Application application);
     List<Application> GetApplicationByEmployeeId(int user_id);
     List<Application> GetApplicationByDepartmentId(int department_id);
+    Application UpdateApplication(Application application);
+    List<Application> GetApplicationWaitedToBeViewedByUserId(int user_id);
 }

@@ -24,6 +24,8 @@ public class ApplicationInterfaceImplementation implements applicationInterface 
     userInterfaceImpl userService;
     @Autowired
     employeeInterfaceImpl employeeService;
+    @Autowired
+    ApplicationInterfaceImplementation applicationService;
 
     @Override
     public Application CreateNewApplication(Application application) {
@@ -81,6 +83,31 @@ public class ApplicationInterfaceImplementation implements applicationInterface 
                  applications.add(a);
              });
         });
+
+        return applications;
+    }
+
+    @Override
+    public Application UpdateApplication(Application application) {
+        return applicationRepo.save(application);
+    }
+
+    /**
+     * 返回所有需要user_id审批的申请，既然需要他审批，说明受到他的直接管理，而不是越级。
+     * @param user_id
+     * @return
+     */
+    @Override
+    public List<Application> GetApplicationWaitedToBeViewedByUserId(int user_id) {
+        // 获取所有的申请
+        List<Application> applications = applicationService.GetAllApplication();
+
+        // 筛选需要user_id审批的申请
+        // 默认禁止老板发起申请，其他每个人都有上级
+        applications = applications
+                .stream()
+                .filter(a -> employeeService.GetSuperior(a.getEmployee().getUser_id()).getUser_id() == user_id)
+                .toList();
 
         return applications;
     }

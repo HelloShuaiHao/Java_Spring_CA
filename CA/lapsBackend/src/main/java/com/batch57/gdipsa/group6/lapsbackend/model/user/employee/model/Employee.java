@@ -93,4 +93,8 @@ public class Employee extends User {
     public void setOverworkingHour(Integer overworkingHour) {
         this.overworkingHour = overworkingHour;
     }
+
+    public void setCalenderYearMedicalLeave(Integer calenderYearMedicalLeave) {
+        this.calenderYearMedicalLeave = calenderYearMedicalLeave;
+    }
 }

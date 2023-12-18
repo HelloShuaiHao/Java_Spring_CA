@@ -9,6 +9,7 @@ import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentI
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.employeeInterfaceImpl;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.userInterfaceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
