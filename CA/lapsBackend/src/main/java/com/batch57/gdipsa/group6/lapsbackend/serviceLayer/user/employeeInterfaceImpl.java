@@ -3,11 +3,16 @@ package com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user;
 import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user.employeeInterface;
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.*;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.HolidayPoint;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.PublicHoliday;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.employeeRepository;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
+import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.holiday.employeeScheduleInterfaceImplementation;
+import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.holiday.publicHolidayInterfaceImplementation;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 @Transactional
@@ -31,7 +36,10 @@ public class employeeInterfaceImpl implements employeeInterface {
     private DepartmentInterfaceImplementation departmentService;
     @Autowired
     private ApplicationInterfaceImplementation applicationService;
-
+    @Autowired
+    private employeeScheduleInterfaceImplementation employeeScheduleService;
+    @Autowired
+    private publicHolidayInterfaceImplementation publicHolidayService;
 
     @Override
     public void CreateEmployee(Employee employee) {
@@ -125,5 +133,153 @@ public class employeeInterfaceImpl implements employeeInterface {
         Application application = applicationService.GetApplicationById(application_id);
         application.setApplicationStatus(newStatus);
         return applicationService.UpdateApplication(application);
+    }
+
+    /**
+     * 根据用户id，返回除了公共假期之外的日期set，对于可能重合的部分采用覆盖策略
+     * @return
+     */
+    @Override
+    public Set<LocalDate> GetEmployeeHolidaySet(int user_id) {
+        List<EmployeeSchedule> employeeSchedules = employeeScheduleService.GetScheduleByEmployeeId(user_id);
+
+        Set<LocalDate> localDateSet = new HashSet<>();
+        employeeSchedules
+                .forEach(s -> {
+                    LocalDate start = s.getStart().getDate();
+                    LocalDate end = s.getEnd().getDate();
+                    while (!start.isAfter(end)) {
+                        localDateSet.add(start);
+                        start = start.plusDays(1);
+                    }
+                });
+        return localDateSet;
+    }
+
+    /**
+     * 返回对于某个用户，某个日期是否和其他假期产生冲突
+     * @param user_id
+     * @param date
+     * @return
+     */
+    @Override
+    public Boolean IsDateApplicableToEmployee(int user_id, LocalDate date) {
+        Employee employee = employeeService.GetEmployeeById(user_id);
+
+        //获取员工自己schedule的日期set
+        Set<LocalDate> employeeScheduleDateSet = employeeService.GetEmployeeHolidaySet(user_id);
+
+        // 获取公共假期日期set
+        Set<LocalDate> publicHolidayDateSet = publicHolidayService.GetPublicHolidaySet();
+
+        // merge
+        employeeScheduleDateSet.addAll(publicHolidayDateSet);
+
+        return !employeeScheduleDateSet.contains(date);
+    }
+
+    /**
+     * 重要逻辑
+     * @param application
+     * @return
+     */
+    @Override
+    public HolidayPoint GetEndHolidayPointBasedOnApplication(Application application) {
+        HolidayPoint holidayPoint;
+        LocalDate estimatedToDate;
+        HOLIDAY_POINT_COMPONENT holidayPointComponent;
+
+        // 获取基本信息
+        LocalDate fromDate = application.getFromDate();
+        EMPLOYEE_LEAVE_TYPE employeeLeaveType = application.getEmployeeLeaveType();
+        Integer dayOff = application.getDayOff();
+        Employee employee = application.getEmployee();
+
+        // 既然这个方法被调用，说明开始时间是没有假期占用的，是合法的
+
+        // 获取员工目前所有的假期date
+        Set<LocalDate> curHolidayDate = employeeService.GetEmployeeHolidaySet(employee.getUser_id());
+        curHolidayDate.addAll(publicHolidayService.GetPublicHolidaySet());
+
+        // 计算结束那天的 holidayPointComponent
+        if(employeeLeaveType == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
+            COMPENSATION_START_POINT compensationStartPoint = application.getCompensationStartPoint();
+            if(compensationStartPoint == COMPENSATION_START_POINT.MORNING) {
+                holidayPointComponent = (dayOff%2 == 1) ? HOLIDAY_POINT_COMPONENT.MORNING : HOLIDAY_POINT_COMPONENT.AFTERNOON;
+            }else {
+                holidayPointComponent = (dayOff%2 == 1) ? HOLIDAY_POINT_COMPONENT.AFTERNOON : HOLIDAY_POINT_COMPONENT.MORNING;
+            }
+            // 把compensation leavde的half day归一, 也就是说计算需要几天才能满足放n个半天
+            // 基础的day, 也就是说最理想的情况下，最少，所需要消耗的天数
+            dayOff = (dayOff+1)/2;
+            // 如果是从下午开始放的，并且在一个上午结束，那么消耗会+1，因为是2的倍数, 但是从下午开始的，一天装不下
+            if(compensationStartPoint == COMPENSATION_START_POINT.AFTERNOON && holidayPointComponent == HOLIDAY_POINT_COMPONENT.MORNING) {
+                dayOff = dayOff + 1;
+            }
+        }else {
+            holidayPointComponent = HOLIDAY_POINT_COMPONENT.AFTERNOON;
+        }
+
+
+        //计算如果想要放dayOFF天，排期会到哪里
+        estimatedToDate = application.getFromDate();
+        System.out.println("day off: " + dayOff);
+        while(dayOff > 1) {
+            // 第一天是肯定没有占用的，不然也不会进入这个方法，等于说进入这个循环，就是从第二天开始，所以直接+1
+            estimatedToDate =  estimatedToDate.plusDays(1); // 这里不会改变原来的对象，所以要新赋值
+
+            if(curHolidayDate.contains(estimatedToDate)) {
+                // 发现了占用 do nothing
+            }else {
+                // 没有占用
+                dayOff--;
+            }
+        }
+
+
+        /**
+         * 下面这个逻辑有错误, 保留做个纪念，长个教训，对于这种非常离散的数据，不要用线段来思考
+         */
+//        if(curHolidayDate.contains(estimatedToDate)) {
+//            // 出现了占用
+//            if(employeeLeaveType == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE) {
+//                // 当前申请是annual leave
+//                if(dayOff <= EMPLOYEE_TYPE.ADMINISTRATIVE.getAnnualLeave()) {
+//                    // 小于等于14天,就不囊括现有的假期,遇到假期顺延
+//                    while(curHolidayDate.contains(estimatedToDate)){
+//                        estimatedToDate = estimatedToDate.plusDays(1);
+//                    }
+//                    // 找到第一个不在假期里的日期
+//                    holidayPoint = new HolidayPoint(estimatedToDate, holidayPoint.getComponent());
+//                }else{
+//                    // 大于14天，需要囊括假期，也就是说不能顺延，最开始的日期就必须结束的日期，把日期标记成null，说明找不到一个合法的假期
+//                    holidayPoint = new HolidayPoint(null, holidayPoint.getComponent());
+//                }
+//            }else{
+//                // 当前申请的是medical leave, 和compensation leave，遇到假期顺延
+//                while(curHolidayDate.contains(estimatedToDate)){
+//                    estimatedToDate = estimatedToDate.plusDays(1);
+//                }
+//                holidayPoint = new HolidayPoint(estimatedToDate, holidayPoint.getComponent());
+//            }
+//        }
+        return new HolidayPoint(estimatedToDate,holidayPointComponent);
+    }
+
+    @Override
+    public void DeleteEmployeeById(int user_id) {
+        // 如果还没有部门的话
+        Employee employee = employeeService.GetEmployeeById(user_id);
+        if(employee.getBelongToDepartment() == null) {
+            repo.deleteById(user_id);
+            return;
+        }
+
+        // 先判断是不是一个manager，如果是的话要解除外键依赖
+        int department = isManager(user_id);
+        if(department != -1) {
+            departmentService.DeleteDepartmentManagerById(department);
+        }
+        repo.deleteById(user_id);
     }
 }

@@ -145,4 +145,12 @@ public class DepartmentInterfaceImplementation implements departmentInterface {
             return false;
         }
     }
+
+    @Override
+    public void DeleteDepartmentManagerById(int department_id) {
+        Department department = repo.findById(department_id).get();
+        if(department != null) {
+            department.setLedByManager(null);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user;
 
 import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user.userInterface;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.userRepository;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,8 @@ import java.util.List;
 public class userInterfaceImpl implements userInterface {
     @Autowired
     userRepository repo;
+    @Autowired
+    employeeInterfaceImpl employeeService;
 
     @Override
     public User CreateUser(User user) {
@@ -28,7 +31,13 @@ public class userInterfaceImpl implements userInterface {
 
     @Override
     public void DeleteUserById(int id) {
-        repo.deleteById(id);
+        User user = repo.findById(id).get();
+        if(user.getUserType() == USER_TYPE.EMPLOYEE) {
+            employeeService.DeleteEmployeeById(id);
+        }else {
+            repo.deleteById(id);
+        }
+
     }
 
     @Override

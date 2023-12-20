@@ -1,10 +1,8 @@
 package com.batch57.gdipsa.group6.lapsbackend.controller.application;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.MEDICAL_LEAVE_MAXIMUM;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.OVERWORKING_UNIT;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.*;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.HolidayPoint;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.CompensationLeaveValidator;
@@ -19,6 +17,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -121,8 +120,11 @@ public class ApplicationController {
         if(!isApplicable) {
             return new ResponseEntity<>("Your are not applicable to annual leave because you have already applied for it.", HttpStatus.EXPECTATION_FAILED);
         }
-        // 如果有资格申请annual leave的话，检查是否超过最大允许年假时间
+
+
+        // 如果有资格申请annual leave的话
         if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE) {
+            // 检查是否超过最大允许年假时间
             int maximum_annual_leave = employee.getEmployeeType().getAnnualLeave();
             if(maximum_annual_leave < newApplication.getDayOff()) {
                 return new ResponseEntity<>("Your maximum annual leave is " + maximum_annual_leave + " days", HttpStatus.EXPECTATION_FAILED);
@@ -141,6 +143,28 @@ public class ApplicationController {
                 return new ResponseEntity<>(errMsg,HttpStatus.EXPECTATION_FAILED);
             }
         }
+
+        // 通过了格式检查，接下来检查开始日期是否是假期
+        if(!employeeService.IsDateApplicableToEmployee(employee.getUser_id(), newApplication.getFromDate())) {
+            return new ResponseEntity<>("The from date is a holiday combined with your current arrangement and public holiday", HttpStatus.EXPECTATION_FAILED);
+        }
+
+
+        // 通过了所有基本检查，接下来计算可能的假期结束点
+        HolidayPoint estimatedEndHolidayPoint = employeeService.GetEndHolidayPointBasedOnApplication(newApplication);
+        if(estimatedEndHolidayPoint.getDate() == null) {
+            // 对于大于14天的annual leave，遇到假期不能顺延，所以找不到这样一个假期, 返回失败
+            return  new ResponseEntity<>("For annual leave exceeds" + EMPLOYEE_TYPE.ADMINISTRATIVE.getAnnualLeave() + " , we can't find a suitable end date combined with current arrangement", HttpStatus.EXPECTATION_FAILED);
+        }else if(estimatedEndHolidayPoint.getDate().getYear() > LocalDate.now().getYear() ) {
+            // 对于其他结束日期已经超过了当前calender year的申请，也返回失败，因为默认只考虑当前的年
+            return new ResponseEntity<>("The end date exceeds current calender year.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 结束假期也合法，通过创建。
+//        return new ResponseEntity<>(estimatedEndHolidayPoint, HttpStatus.OK);
+
+        // 把假期结束的日期给application
+        newApplication.setEstimatedToDate(estimatedEndHolidayPoint.getDate());
 
         Application created =  applicationService.CreateNewApplication(newApplication);
 

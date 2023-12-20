@@ -4,6 +4,7 @@ import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user.userInterface;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
+import com.batch57.gdipsa.group6.lapsbackend.repository.user.employeeRepository;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.userRepository;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.employeeInterfaceImpl;
@@ -21,12 +22,17 @@ import java.util.List;
 public class AdminController {
     @Autowired
     private userRepository repo;
+    @Autowired
+    private employeeRepository employeeRepo;
 
     @Autowired
     private userInterface userService;
 
     @Autowired
     private DepartmentInterfaceImplementation departmentService;
+
+    @Autowired
+    private employeeInterfaceImpl employeeService;
 
     @Autowired
     public void setUserService(userInterfaceImpl impl) {
@@ -74,14 +80,9 @@ public class AdminController {
     }
 
     @GetMapping("/delete/{id}")
-    public ResponseEntity<User> DeleteById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> DeleteById(@PathVariable("id") Integer id) {
         userService.DeleteUserById(id);
-        User optUser = repo.getById(id);
-        if(optUser == null) {
-            return new ResponseEntity<>(optUser, HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
+        return new ResponseEntity<>("Succeessful", HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}/{user_type}")
@@ -99,6 +100,13 @@ public class AdminController {
     @GetMapping("/get/{id}")
     public ResponseEntity<User> GetUserById(@PathVariable("id") Integer id) {
         User u = userService.GetUserById(id);
+
+        if(u.getUserType() == USER_TYPE.EMPLOYEE){
+            // 如果要删除的是一个employee
+            employeeRepo.deleteById(id);
+        }else{
+            repo.deleteById(id);
+        }
         if(u == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }else{

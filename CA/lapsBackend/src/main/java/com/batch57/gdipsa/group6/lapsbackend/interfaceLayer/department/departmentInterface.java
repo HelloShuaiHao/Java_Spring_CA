@@ -12,4 +12,5 @@ public interface departmentInterface {
     Department AddSubDepartment(int super_department_id, int sub_department_id);
     List<Employee> GetEmployeesByDepartmentId(int department_id);
     List<Employee> GetEmployeesAndSubManagerByDepartmentId(int department_id);
+    void DeleteDepartmentManagerById(int department_id);
 }

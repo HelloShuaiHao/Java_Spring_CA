@@ -39,6 +39,11 @@ public class Application {
     @NotNull
     LocalDate fromDate;// 开始日期，保证传入的都是合法的
 
+    /**
+     * 这里这个结束日期，只是给领导一个参考，并不少员工拿到的真正时间，拿到的真正时间还包括结束时间是上午还是下午，我这样设计是为之后优化做准备，比如领导可以查看今天有没有员工在岗
+     */
+    LocalDate estimatedToDate; // 计算得出的结束日期
+
     @NotNull
     Integer dayOff;
 
@@ -130,5 +135,13 @@ public class Application {
 
     public void setApplication_id(Integer application_id) {
         this.application_id = application_id;
+    }
+
+    public LocalDate getEstimatedToDate() {
+        return estimatedToDate;
+    }
+
+    public void setEstimatedToDate(LocalDate estimatedToDate) {
+        this.estimatedToDate = estimatedToDate;
     }
 }

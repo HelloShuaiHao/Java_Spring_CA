@@ -2,10 +2,7 @@ package com.batch57.gdipsa.group6.lapsbackend.controller.manager;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.HOLIDAY_POINT_COMPONENT;
-import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.OVERWORKING_UNIT;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.*;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.HolidayPoint;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
@@ -179,26 +176,42 @@ public class ManagerController {
         if( (curStatus == APPLICATION_STATUS.APPLIED || curStatus == APPLICATION_STATUS.UPDATED) && (status != APPLICATION_STATUS.CANCELLED)) {
             application.setApplicationStatus(status);
 
+            // // [applied/updated] -> [approved]
             if(status == APPLICATION_STATUS.APPROVED){
+                // 开始的HolidayPoint
+                HolidayPoint StartHolidayPoint = new HolidayPoint();
+
                 if(leaveType == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE){
                     // 判断逻辑，如果通过了一个compensation leave 需要减去该employee的加班时间
                     employee.setOverworkingHour(employee.getOverworkingHour() - application.getDayOff()*OVERWORKING_UNIT.UNIT.getValue());
+                    // 设置开始点
+                    StartHolidayPoint = new HolidayPoint(application.getFromDate(), application.getCompensationStartPoint()== COMPENSATION_START_POINT.MORNING?HOLIDAY_POINT_COMPONENT.MORNING : HOLIDAY_POINT_COMPONENT.AFTERNOON);
                 }
                 if(leaveType == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE){
                     // 判断逻辑，如果通过了一个annual leave 需要禁用当年的entitlement to annual leave
                     employee.setEntitlementToAnnualLeave(false);
+                    // 设置开始点
+                    StartHolidayPoint = new HolidayPoint(application.getFromDate(), HOLIDAY_POINT_COMPONENT.MORNING);
                 }
                 if(leaveType == EMPLOYEE_LEAVE_TYPE.MEDICAL_LEAVE){
                     // 判断逻辑，如果通过了一个medical leave 需要加上该employee的medical leave时间
                     employee.setCalenderYearMedicalLeave(employee.getCalenderYearMedicalLeave() + application.getDayOff());
+                    //设置开始点
+                    StartHolidayPoint = new HolidayPoint(application.getFromDate(), HOLIDAY_POINT_COMPONENT.MORNING);
                 }
 
                 // 如果通过了一个申请，就要在放假安排里面增加它的放假安排
-                EmployeeSchedule schedule = new EmployeeSchedule(employee, new HolidayPoint(LocalDate.of(2018,6,12), HOLIDAY_POINT_COMPONENT.MORNING), new HolidayPoint(LocalDate.of(2018,6,18), HOLIDAY_POINT_COMPONENT.MORNING)); // 这里默认一个开始结尾的时间，因为还没有写交叉日期的算法
+                // 计算假期结束是哪天的上午还是下午
+                HolidayPoint estimatedEndHolidayPoint = employeeService.GetEndHolidayPointBasedOnApplication(application);
+
+                EmployeeSchedule schedule = new EmployeeSchedule(employee, StartHolidayPoint, estimatedEndHolidayPoint); // 这里默认一个开始结尾的时间，因为还没有写交叉日期的算法
+
                 employeeScheduleService.CreateSchedule(schedule); // 保存到假期安排的数据库中
+
                 application.setSchedule(schedule); // 把该application关联到这个schedule中
             }
 
+            // 保存
             employeeService.UpdateEmployee(employee);
             return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
         }
