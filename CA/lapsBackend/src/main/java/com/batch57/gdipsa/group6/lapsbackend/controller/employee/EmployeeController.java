@@ -1,7 +1,10 @@
 package com.batch57.gdipsa.group6.lapsbackend.controller.employee;
 
+import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
+import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.employeeInterfaceImpl;
 import org.apache.coyote.Response;
@@ -21,6 +24,9 @@ public class EmployeeController {
 
     @Autowired
     private DepartmentInterfaceImplementation departmentService;
+
+    @Autowired
+    private ApplicationInterfaceImplementation applicationService;
 
     /**
      * 返回employee列表
@@ -43,6 +49,8 @@ public class EmployeeController {
     public ResponseEntity<Employee> Create(@RequestBody Employee inEmployee) {
         Employee newEmployee = new Employee(inEmployee.getName(), inEmployee.getPassword(), inEmployee.getUserType());
         newEmployee.setEmployeeType(inEmployee.getEmployeeType());
+
+
 
         employeeService.CreateEmployee(newEmployee);
         return new ResponseEntity<>(newEmployee, HttpStatus.OK);
@@ -158,6 +166,27 @@ public class EmployeeController {
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
+//    @GetMapping("/update-application-status-by-id")
+//    public ResponseEntity<?> UpdateApplicationStatusById(@RequestHeader("user_id") int user_id, @RequestHeader("application_id") int application_id, @RequestHeader("status") APPLICATION_STATUS status, @RequestBody Application newApplication) {
+//        Application application = applicationService.GetApplicationById(application_id);
+//
+//        List<Application> applications = applicationService.GetApplicationByEmployeeId(user_id);
+//        boolean isContained = applications
+//                .stream()
+//                .anyMatch(a -> a.getApplication_id() == application_id);
+//
+//        if(!isContained) {
+//            // 想修改的这个application，不属于这个user
+//            return new ResponseEntity<>("You can't modify other's record", HttpStatus.EXPECTATION_FAILED);
+//        }
+//
+//        if(status == APPLICATION_STATUS.APPLIED || status == APPLICATION_STATUS.APPROVED || status == APPLICATION_STATUS.CANCELLED || status == APPLICATION_STATUS.REJECTED) {
+//            return new ResponseEntity<>("Modify status to " + status.toString() + " is not allowed", HttpStatus.EXPECTATION_FAILED);
+//        }else {
+//            application.setApplicationStatus(status);
+//            return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
+//        }
+//    }
 
 //    @GetMapping("/get-subordinates/{user_id}")
 //    public ResponseEntity<?> GetSubordinates(@PathVariable("user_id")int user_id) {

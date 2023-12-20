@@ -124,5 +124,11 @@ public class Application {
         this.schedule = schedule;
     }
 
+    public Integer getApplication_id() {
+        return application_id;
+    }
 
+    public void setApplication_id(Integer application_id) {
+        this.application_id = application_id;
+    }
 }

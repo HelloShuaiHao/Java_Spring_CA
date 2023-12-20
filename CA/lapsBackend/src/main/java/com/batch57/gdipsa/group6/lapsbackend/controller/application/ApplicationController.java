@@ -105,6 +105,11 @@ public class ApplicationController {
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
 
+        // 检查申请unit是否为正整数
+        if(newApplication.getDayOff()<=0) {
+            return new ResponseEntity<>("You must return a positive integer", HttpStatus.EXPECTATION_FAILED);
+        }
+
         // 检查该用户有无申请资格
         boolean isApplicable = booleanValue(CheckIfEmployeeIsApplicable(user_id).getBody()); // 检查有无已经提交的申请
         if(!isApplicable){
@@ -364,6 +369,92 @@ public class ApplicationController {
         }else {
             return new ResponseEntity<>(applications, HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/update-application/{user_id}/{application_id}")
+    public ResponseEntity<?> UpdateApplication(@PathVariable("user_id") int user_id, @PathVariable("application_id") int application_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult ) {
+        // 获取之前的申请
+        Application application = applicationService.GetApplicationById(application_id);
+        if(application == null) return new ResponseEntity<>("ERROR in finding application", HttpStatus.NOT_FOUND);
+
+        // user_id不存在
+        Employee employee = employeeService.GetEmployeeById(user_id);
+        if(employee == null) return new ResponseEntity<>("ERROR in finding employee", HttpStatus.NOT_FOUND);
+
+        // 没有上级的人不允许发起申请
+        Employee superior = employeeService.GetSuperior(user_id);
+        if(superior == null) return new ResponseEntity<>("You dont't have a superior, submitting an application is not allowed", HttpStatus.EXPECTATION_FAILED);
+
+        // 申请信息有错误
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> {
+                System.out.println(error.getDefaultMessage());
+            });
+            String errMsg= "error in binding Application";
+            return new ResponseEntity<>(bindingResult , HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 尝试构建新的申请表格
+        Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
+        newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
+
+        // 检查用户是否有资格申请annual leave
+        boolean isApplicable = true;
+        isApplicable = newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE? isApplicable && employee.isEntitlementToAnnualLeave() : isApplicable; // 检查是否entitled to annul leave
+        if(!isApplicable) {
+            return new ResponseEntity<>("Your are not applicable to annual leave because you have already applied for it.", HttpStatus.EXPECTATION_FAILED);
+        }
+        // 如果有资格申请annual leave的话，检查是否超过最大允许年假时间
+        if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE) {
+            int maximum_annual_leave = employee.getEmployeeType().getAnnualLeave();
+            if(maximum_annual_leave < newApplication.getDayOff()) {
+                return new ResponseEntity<>("Your maximum annual leave is " + maximum_annual_leave + " days", HttpStatus.EXPECTATION_FAILED);
+            }
+        }
+
+        // 如果是compensation 的话，检查有无超过最大的允许unit：overworking/unit_time
+        if(newApplication.getEmployeeLeaveType()==EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE && isExceedMaximumCompensationUnit(employee, newApplication)){
+            return new ResponseEntity<>("Day off exceeds maximum compensation units allowed.", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 检查medical leave related的
+        if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.MEDICAL_LEAVE) {
+            if(newApplication.getDayOff()+employeeService.GetEmployeeMedicalLeave(user_id)/OVERWORKING_UNIT.UNIT.getValue() > MEDICAL_LEAVE_MAXIMUM.MAXIMUM.getValue()) {
+                String errMsg = "Medical leave can't exceed " + MEDICAL_LEAVE_MAXIMUM.MAXIMUM.getValue() + " in a calendar year";
+                return new ResponseEntity<>(errMsg,HttpStatus.EXPECTATION_FAILED);
+            }
+        }
+
+
+        // 通过检查
+        application.setFromDate(newApplication.getFromDate());
+        application.setDayOff(newApplication.getDayOff());
+        application.setEmployeeLeaveType(newApplication.getEmployeeLeaveType());
+        application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
+//        if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
+//            application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
+//        }
+        application.setApplicationStatus(APPLICATION_STATUS.UPDATED);
+        return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
+
+//        ResponseEntity<?> result = CreateApplication(user_id, inApplication, bindingResult);
+//        if(result.getBody().getClass() != Application.class) {
+//            return result;
+//        }else {
+//            Application newApplication = (Application) result.getBody();
+//
+//            application.setFromDate(newApplication.getFromDate());
+//            application.setDayOff(newApplication.getDayOff());
+//            application.setEmployeeLeaveType(newApplication.getEmployeeLeaveType());
+//            if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
+//                application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
+//            }
+//            application.setApplicationStatus(APPLICATION_STATUS.UPDATED);
+//
+//            return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
+//        }
+
+
     }
 
 }

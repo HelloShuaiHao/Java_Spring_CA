@@ -1,21 +1,24 @@
 package com.batch57.gdipsa.group6.lapsbackend.controller.manager;
 
-import com.batch57.gdipsa.group6.lapsbackend.controller.employee.EmployeeController;
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.HOLIDAY_POINT_COMPONENT;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.OVERWORKING_UNIT;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.HolidayPoint;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
+import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.holiday.employeeScheduleInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.employeeInterfaceImpl;
-import org.apache.catalina.Manager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -27,6 +30,8 @@ public class ManagerController {
     DepartmentInterfaceImplementation departmentService;
     @Autowired
     employeeInterfaceImpl employeeService;
+    @Autowired
+    employeeScheduleInterfaceImplementation employeeScheduleService;
 
     /**
      * 验证发过来的用户id是否为一个department的manager
@@ -155,6 +160,13 @@ public class ManagerController {
             }
 
             employeeService.UpdateEmployee(employee);
+
+            // 撤销一条已经通过的申请，需要在放假安排里删除这个员工的放假安排
+            EmployeeSchedule schedule = application.getSchedule(); // 获取这条申请所对应的放假安排
+            application.setSchedule(null); // 断开对schedule的外键依赖
+            applicationService.UpdateApplication(application); // 在数据库更新
+            employeeScheduleService.DeleteSchedule(schedule);
+
             return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
         }
 
@@ -181,7 +193,12 @@ public class ManagerController {
                     employee.setCalenderYearMedicalLeave(employee.getCalenderYearMedicalLeave() + application.getDayOff());
                 }
 
+                // 如果通过了一个申请，就要在放假安排里面增加它的放假安排
+                EmployeeSchedule schedule = new EmployeeSchedule(employee, new HolidayPoint(LocalDate.of(2018,6,12), HOLIDAY_POINT_COMPONENT.MORNING), new HolidayPoint(LocalDate.of(2018,6,18), HOLIDAY_POINT_COMPONENT.MORNING)); // 这里默认一个开始结尾的时间，因为还没有写交叉日期的算法
+                employeeScheduleService.CreateSchedule(schedule); // 保存到假期安排的数据库中
+                application.setSchedule(schedule); // 把该application关联到这个schedule中
             }
+
             employeeService.UpdateEmployee(employee);
             return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
         }

@@ -1,9 +1,12 @@
 package com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user;
 
 import com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user.employeeInterface;
+import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.employeeRepository;
+import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,8 @@ public class employeeInterfaceImpl implements employeeInterface {
     private employeeInterfaceImpl employeeService;
     @Autowired
     private DepartmentInterfaceImplementation departmentService;
+    @Autowired
+    private ApplicationInterfaceImplementation applicationService;
 
 
     @Override
@@ -113,5 +118,12 @@ public class employeeInterfaceImpl implements employeeInterface {
     @Override
     public Employee UpdateEmployee(Employee employee) {
         return repo.save(employee);
+    }
+
+    @Override
+    public Application UpdateApplicationStatus(int application_id, APPLICATION_STATUS newStatus) {
+        Application application = applicationService.GetApplicationById(application_id);
+        application.setApplicationStatus(newStatus);
+        return applicationService.UpdateApplication(application);
     }
 }

@@ -1,6 +1,9 @@
 package com.batch57.gdipsa.group6.lapsbackend.interfaceLayer.user;
 
+import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
+import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
@@ -16,4 +19,5 @@ public interface employeeInterface {
     Employee GetSuperior(int user_id);
     Integer GetEmployeeDepartmentId(int user_id);
     Employee UpdateEmployee(Employee employee);
+    Application UpdateApplicationStatus(int application_id, APPLICATION_STATUS newStatus);
 }
