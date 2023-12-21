@@ -166,6 +166,16 @@ public class EmployeeController {
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
+    @GetMapping("get-subordinates-by-id/{user_id}")
+    public ResponseEntity<?> GetSubordinatesById(@PathVariable("user_id") int id ){
+        int department_id = employeeService.isManager(id);
+        if(department_id == -1) {
+            return new ResponseEntity<>("You are not a manager!" , HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id), HttpStatus.OK);
+    }
+
 //    @GetMapping("/update-application-status-by-id")
 //    public ResponseEntity<?> UpdateApplicationStatusById(@RequestHeader("user_id") int user_id, @RequestHeader("application_id") int application_id, @RequestHeader("status") APPLICATION_STATUS status, @RequestBody Application newApplication) {
 //        Application application = applicationService.GetApplicationById(application_id);
