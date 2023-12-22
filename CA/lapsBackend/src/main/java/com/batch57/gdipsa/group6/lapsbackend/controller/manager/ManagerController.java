@@ -101,7 +101,7 @@ public class ManagerController {
      * 表示manager_id的用户 要修改application_id的申请状态为status
      */
     @GetMapping("/update-application-status")
-    public ResponseEntity<?> UpdateApplicationStatus(@RequestHeader("manager_id") int manager_id, @RequestHeader("application_id") int application_id ,@RequestHeader("status") APPLICATION_STATUS status) {
+    public ResponseEntity<?> UpdateApplicationStatus(@RequestHeader("manager_id") int manager_id, @RequestHeader("application_id") int application_id ,@RequestHeader("status") APPLICATION_STATUS status, @RequestHeader("reviewedComment") String reviewedComment) {
         // 获取发起请求的对象
         Employee manager = employeeService.GetEmployeeById(manager_id);
         if(manager == null) return new ResponseEntity<>("Please input a valid user ID", HttpStatus.NOT_FOUND);
@@ -139,6 +139,7 @@ public class ManagerController {
         // [approved] -> [cancelled]
         if( (curStatus == APPLICATION_STATUS.APPROVED) && status == APPLICATION_STATUS.CANCELLED) {
             application.setApplicationStatus(status);
+            application.setReviewedComment(reviewedComment);
 
             // 如果是compensation leave的话需要重新恢复employee的overworking time
             if(leaveType == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
@@ -175,6 +176,8 @@ public class ManagerController {
         // [applied/updated] -> [approved/rejected]
         if( (curStatus == APPLICATION_STATUS.APPLIED || curStatus == APPLICATION_STATUS.UPDATED) && (status != APPLICATION_STATUS.CANCELLED)) {
             application.setApplicationStatus(status);
+            application.setReviewedComment(reviewedComment);
+
 
             // // [applied/updated] -> [approved]
             if(status == APPLICATION_STATUS.APPROVED){

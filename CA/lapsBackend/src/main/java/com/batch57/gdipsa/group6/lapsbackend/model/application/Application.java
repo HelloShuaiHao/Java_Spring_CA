@@ -60,6 +60,16 @@ public class Application {
     @OneToOne
     EmployeeSchedule schedule;
 
+    // 申请原因
+    private String applyingReason;
+
+    // 审批comment
+    private String reviewedComment;
+
+    // 其他额外字段
+    private String workDissemination;
+    private String contactDetails;
+
     public Application() {
     }
 
@@ -143,5 +153,21 @@ public class Application {
 
     public void setEstimatedToDate(LocalDate estimatedToDate) {
         this.estimatedToDate = estimatedToDate;
+    }
+
+    public String getApplyingReason() {
+        return applyingReason;
+    }
+
+    public void setApplyingReason(String applyingReason) {
+        this.applyingReason = applyingReason;
+    }
+
+    public String getReviewedComment() {
+        return reviewedComment;
+    }
+
+    public void setReviewedComment(String reviewedComment) {
+        this.reviewedComment = reviewedComment;
     }
 }

@@ -103,6 +103,7 @@ public class ApplicationController {
         // 尝试构建新的申请表格
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
+        newApplication.setApplyingReason(inApplication.getApplyingReason());
 
         // 检查申请unit是否为正整数
         if(newApplication.getDayOff()<=0) {
