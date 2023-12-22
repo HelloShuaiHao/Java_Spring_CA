@@ -158,7 +158,7 @@ public class EmployeeController {
             return new ResponseEntity<>("The department you are looking for is not found", HttpStatus.NOT_FOUND);
         }
 
-        List<Employee> employees = departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id);
+        List<Employee> employees = departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id, 0);
         if(employees.isEmpty()) {
             return new ResponseEntity<>("The department has no employees", HttpStatus.NOT_FOUND);
         }
@@ -173,7 +173,7 @@ public class EmployeeController {
             return new ResponseEntity<>("You are not a manager!" , HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id), HttpStatus.OK);
+        return new ResponseEntity<>(departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id, 0), HttpStatus.OK);
     }
 
 //    @GetMapping("/update-application-status-by-id")

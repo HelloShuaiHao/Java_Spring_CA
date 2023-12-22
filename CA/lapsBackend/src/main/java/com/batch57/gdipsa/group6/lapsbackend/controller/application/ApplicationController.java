@@ -335,7 +335,7 @@ public class ApplicationController {
         }
 
         // 获取手下所有员工 + 子部门的领导
-        List<Employee> employees = departmentService.GetEmployeesAndSubManagerByDepartmentId(leads_department);
+        List<Employee> employees = departmentService.GetEmployeesAndSubManagerByDepartmentId(leads_department,0);
         Set<Integer> idSet = new HashSet<>();
         employees
                 .forEach(e -> {

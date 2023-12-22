@@ -91,7 +91,9 @@ public class DepartmentInterfaceImplementation implements departmentInterface {
      * @return
      */
     @Override
-    public List<Employee> GetEmployeesAndSubManagerByDepartmentId(int department_id) {
+    public List<Employee> GetEmployeesAndSubManagerByDepartmentId(int department_id, int depth) {
+        if(depth == 2) return new ArrayList<Employee>();
+
         // 现获取整个公司所有的员工
         List<Employee> allEmployees = employeeService.GetAll();
 
@@ -120,16 +122,19 @@ public class DepartmentInterfaceImplementation implements departmentInterface {
             // base case
         }else {
             subDepartments.forEach(d -> {
-                employees.get().addAll(GetEmployeesByDepartmentId(d.getId()));
+                employees.get().addAll(GetEmployeesAndSubManagerByDepartmentId(d.getId(), depth+1));
             });
 
         }
 
-        // 最后过滤，只要当前的员工和更小子部门的领导
-        employees.set(employees.get()
-                .stream()
-                .filter(e -> isManager(e.getUser_id()))
-                .toList());
+        if(depth == 1) {
+            // 最后过滤，只要当前的员工和更小子部门的领导
+            employees.set(employees.get()
+                    .stream()
+                    .filter(e -> isManager(e.getUser_id()))
+                    .toList());
+        }
+
         return employees.get();
     }
 
