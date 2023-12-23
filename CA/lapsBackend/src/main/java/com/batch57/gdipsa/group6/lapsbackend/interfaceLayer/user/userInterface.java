@@ -12,4 +12,6 @@ public interface userInterface {
     public User ModifyUserRole(Integer userId, USER_TYPE user_type);
 
     public User GetUserById(int id);
+
+    Boolean isTrue(int id, String password);
 }

@@ -50,4 +50,15 @@ public class userInterfaceImpl implements userInterface {
     public User GetUserById(int id) {
         return repo.findById(id).get();
     }
+
+
+    @Override
+    public Boolean isTrue(int id, String password) {
+        User user = GetUserById(id);
+
+        if(user == null) {
+            return false;
+        }
+        return user.getPassword().equals(password);
+    }
 }
