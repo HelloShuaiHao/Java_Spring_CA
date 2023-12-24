@@ -42,6 +42,7 @@ import static org.aspectj.runtime.internal.Conversions.booleanValue;
  * LocalDateTime fromDate;
  *
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/application")
 public class ApplicationController {
@@ -225,6 +226,16 @@ public class ApplicationController {
     @GetMapping("/get-application-by-employee-id/{user_id}")
     public ResponseEntity<List<Application>> GetApplicationByEmployeeId(@PathVariable("user_id") int user_id) {
         List<Application> applications = applicationService.GetApplicationByEmployeeId(user_id);
+
+        /**
+         * 只要当前年份的申请
+         */
+
+        applications = applications
+                .stream()
+                .filter(a -> a.getFromDate().getYear() == LocalDate.now().getYear())
+                .toList();
+
         if(applications == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }else {

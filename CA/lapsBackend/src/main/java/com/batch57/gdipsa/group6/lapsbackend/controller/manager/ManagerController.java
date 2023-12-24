@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/manager")
 public class ManagerController {
@@ -110,34 +111,13 @@ public class ManagerController {
         Application application = applicationService.GetApplicationById(application_id);
         EMPLOYEE_LEAVE_TYPE leaveType = application.getEmployeeLeaveType();
 
-        // 获取发起请求的人 所领导的部门 ，如果不是manager返回-1
-        Integer leadDepartment = isManager(manager_id);
-        if(leadDepartment == -1) return new ResponseEntity<>("You don't have any subordinate", HttpStatus.NOT_FOUND);
-
         // 获取这个申请所属的员工
         Employee employee = application.getEmployee();
 
-        // 获取这个员工的直接领导者
-        Employee superior = employeeService.GetSuperior(employee.getUser_id());
-        if(superior == null) {
-            // 没有找到直接领导者
-            return new ResponseEntity<>("The superior of employee " + employee.getUser_id() + " can't be found", HttpStatus.NOT_FOUND);
-        }
-
-        if(superior.getUser_id() != manager_id) {
-            return new ResponseEntity<>("You don't have the permission for this employee, please contact the direct manager", HttpStatus.EXPECTATION_FAILED);
-        }
-
-        // 尝试修改申请状态
-
-        // 如果状态已经为Cancelled了，那就不能继续其他操作了
-        APPLICATION_STATUS curStatus = application.getApplicationStatus();
-        if(curStatus == APPLICATION_STATUS.CANCELLED) {
-            return new ResponseEntity<>("This application has already been cancelled and can't be moved forward", HttpStatus.EXPECTATION_FAILED);
-        }
-
-        // [approved] -> [cancelled]
-        if( (curStatus == APPLICATION_STATUS.APPROVED) && status == APPLICATION_STATUS.CANCELLED) {
+        /**
+         * 被包裹的这部分逻辑是让employee 对自己已经approved的申请 进行cancel操作
+         */
+        if(application.getEmployee().getUser_id() == manager_id && application.getApplicationStatus()==APPLICATION_STATUS.APPROVED && status == APPLICATION_STATUS.CANCELLED) {
             application.setApplicationStatus(status);
             application.setReviewedComment(reviewedComment);
 
@@ -167,6 +147,39 @@ public class ManagerController {
 
             return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
         }
+        /**
+         * 被包裹的这部分逻辑是让employee 对自己已经approved的申请 进行cancel操作
+         */
+
+
+        // 获取发起请求的人 所领导的部门 ，如果不是manager返回-1
+        Integer leadDepartment = isManager(manager_id);
+        if(leadDepartment == -1) return new ResponseEntity<>("You don't have any subordinate", HttpStatus.NOT_FOUND);
+
+
+        // 获取这个员工的直接领导者
+        Employee superior = employeeService.GetSuperior(employee.getUser_id());
+        if(superior == null) {
+            // 没有找到直接领导者
+            return new ResponseEntity<>("The superior of employee " + employee.getUser_id() + " can't be found", HttpStatus.NOT_FOUND);
+        }
+
+        if(superior.getUser_id() != manager_id) {
+            return new ResponseEntity<>("You don't have the permission for this employee, please contact the direct manager", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // 尝试修改申请状态
+
+        // 如果状态已经为Cancelled了，那就不能继续其他操作了
+        APPLICATION_STATUS curStatus = application.getApplicationStatus();
+        if(curStatus == APPLICATION_STATUS.CANCELLED) {
+            return new ResponseEntity<>("This application has already been cancelled and can't be moved forward", HttpStatus.EXPECTATION_FAILED);
+        }
+
+        // [approved] -> [cancelled]
+//        if( (curStatus == APPLICATION_STATUS.APPROVED) && status == APPLICATION_STATUS.CANCELLED) {
+//
+//        }
 
         // 不能重复设置applied
         if( (curStatus == APPLICATION_STATUS.APPLIED || curStatus == APPLICATION_STATUS.UPDATED) && status == APPLICATION_STATUS.APPLIED) {

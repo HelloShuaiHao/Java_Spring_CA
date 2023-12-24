@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
 
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class LogOutController {
