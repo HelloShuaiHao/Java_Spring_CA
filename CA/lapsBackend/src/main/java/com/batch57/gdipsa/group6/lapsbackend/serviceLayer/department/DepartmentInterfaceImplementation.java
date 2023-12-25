@@ -158,4 +158,26 @@ public class DepartmentInterfaceImplementation implements departmentInterface {
             department.setLedByManager(null);
         }
     }
+
+    @Override
+    public List<Employee> GetInteriorEmployeeByDepartmentId(int department_id) {
+        Department department = GetDepartmentById(department_id);
+        List<Employee> employees = employeeService.GetAll();
+        employees =  employees
+                .stream()
+                .filter((e) -> e.getBelongToDepartment()!=null && e.getBelongToDepartment().getId()==department_id)
+                .toList();
+
+        return employees;
+    }
+
+    @Override
+    public List<Department> GetInteriorDepartmentByDepartmentId(int department_id) {
+        List<Department> departments = GetAll();
+        departments = departments
+                .stream()
+                .filter((d) -> d.getIncludedBy()!=null && d.getIncludedBy().getId()==department_id)
+                .toList();
+        return departments;
+    }
 }

@@ -44,6 +44,11 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/get-by-id/{user_id}")
+    public ResponseEntity<?> GetEmployeeById(@PathVariable("user_id") int user_id) {
+        return new ResponseEntity<>(employeeService.GetEmployeeById(user_id), HttpStatus.OK);
+    }
+
     /**
      * 创建新employee的同时，添加数据到user数据库中
      */
@@ -51,8 +56,7 @@ public class EmployeeController {
     public ResponseEntity<Employee> Create(@RequestBody Employee inEmployee) {
         Employee newEmployee = new Employee(inEmployee.getName(), inEmployee.getPassword(), inEmployee.getUserType());
         newEmployee.setEmployeeType(inEmployee.getEmployeeType());
-
-
+        newEmployee.setEmail(inEmployee.getEmail());
 
         employeeService.CreateEmployee(newEmployee);
         return new ResponseEntity<>(newEmployee, HttpStatus.OK);
@@ -176,6 +180,20 @@ public class EmployeeController {
         }
 
         return new ResponseEntity<>(departmentService.GetEmployeesAndSubManagerByDepartmentId(department_id, 0), HttpStatus.OK);
+    }
+
+    @PutMapping("update-by-id/{user_id}")
+    public ResponseEntity<?> UpdateEmployeeById(@PathVariable("user_id") int user_id, @RequestBody Employee employee) {
+        Employee updatedEmployee = employeeService.GetEmployeeById(user_id);
+        updatedEmployee.setName(employee.getName());
+        updatedEmployee.setPassword(employee.getPassword());
+        updatedEmployee.setUserType(employee.getUserType());
+        updatedEmployee.setEmployeeType(employee.getEmployeeType());
+        updatedEmployee.setEmail(employee.getEmail());
+        updatedEmployee.setEntitlementToAnnualLeave(employee.isEntitlementToAnnualLeave());
+
+        employeeService.UpdateEmployee(updatedEmployee);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 //    @GetMapping("/update-application-status-by-id")

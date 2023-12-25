@@ -81,11 +81,11 @@ public class DepartmentController {
     }
 
     @GetMapping("/get-department-manger-by-id/{department_id}")
-    public ResponseEntity<Employee> GetDepartmentMangerByDepartmentId(@PathVariable("department_id") int department_id) {
+    public ResponseEntity<?> GetDepartmentMangerByDepartmentId(@PathVariable("department_id") int department_id) {
         Employee manager = repo.GetDepartmentMangerByDepartmentId(department_id);
 
         if(manager == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(manager, HttpStatus.OK);
         }else {
             return new ResponseEntity<>(manager, HttpStatus.OK);
         }
@@ -104,6 +104,15 @@ public class DepartmentController {
     }
 
 
+    @GetMapping("get-interior-employee-by-department-id/{department_id}")
+    public ResponseEntity<?> GetInteriorEmployeeByDepartmentId(@PathVariable("department_id") int department_id) {
+        return new ResponseEntity<>(departmentService.GetInteriorEmployeeByDepartmentId(department_id), HttpStatus.OK);
+    }
 
+
+    @GetMapping("get-interior-department-by-department-id/{department_id}")
+    public ResponseEntity<?> GetInteriorDepartmentByDepartmentId(@PathVariable("department_id") int department_id) {
+        return new ResponseEntity<>(departmentService.GetInteriorDepartmentByDepartmentId(department_id), HttpStatus.OK);
+    }
 
 }

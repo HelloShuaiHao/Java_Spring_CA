@@ -11,6 +11,7 @@ import org.hibernate.internal.util.beans.BeanInfoHelper;
 import org.springframework.util.CollectionUtils;
 
 import java.beans.beancontext.BeanContext;
+import java.util.List;
 import java.util.Set;
 
 @Entity

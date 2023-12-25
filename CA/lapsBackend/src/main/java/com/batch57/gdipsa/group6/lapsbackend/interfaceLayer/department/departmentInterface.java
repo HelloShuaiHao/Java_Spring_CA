@@ -13,4 +13,7 @@ public interface departmentInterface {
     List<Employee> GetEmployeesByDepartmentId(int department_id);
     List<Employee> GetEmployeesAndSubManagerByDepartmentId(int department_id, int depth);
     void DeleteDepartmentManagerById(int department_id);
+    List<Employee> GetInteriorEmployeeByDepartmentId(int department_id);
+    List<Department> GetInteriorDepartmentByDepartmentId(int department_id);
+
 }

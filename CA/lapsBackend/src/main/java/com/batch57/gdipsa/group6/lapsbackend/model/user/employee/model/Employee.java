@@ -8,6 +8,7 @@ import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
@@ -41,6 +42,9 @@ public class Employee extends User {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     List<EmployeeSchedule> schedules;
 
+    @JsonProperty("email")
+    @Email
+    private String email;
 
     public void setBelongToDepartment(Department belongToDepartment) {
         this.belongToDepartment = belongToDepartment;
@@ -103,4 +107,13 @@ public class Employee extends User {
     public void setCalenderYearMedicalLeave(Integer calenderYearMedicalLeave) {
         this.calenderYearMedicalLeave = calenderYearMedicalLeave;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }
