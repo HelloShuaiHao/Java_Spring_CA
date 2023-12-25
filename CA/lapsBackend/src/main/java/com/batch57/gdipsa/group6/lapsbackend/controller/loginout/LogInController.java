@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
-@CrossOrigin
+
+@CrossOrigin(origins = { "http://localhost:3000" }, allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/api")
 public class LogInController {
@@ -23,7 +25,7 @@ public class LogInController {
     employeeInterfaceImpl employeeService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> Login(@RequestBody LoginRequest request, HttpServletResponse response, HttpSession session) {
         int user_id = request.getUserId();
         String pwd = request.getPassword();
 
@@ -33,19 +35,23 @@ public class LogInController {
 
             // 验证成功，将用户id写入Cookie
             Cookie userIdCookie = new Cookie("CurrentUserId", String.valueOf(user_id));
-            userIdCookie.setMaxAge(3600); // 设置Cookie过期时间，单位为秒
             userIdCookie.setPath("/"); // 设置Cookie的路径
             response.addCookie(userIdCookie);
 
             Cookie userTypeCookie = new Cookie("CurrentUserType", String.valueOf(user.getUserType()));
-            userTypeCookie.setMaxAge(3600); // 设置Cookie过期时间，单位为秒
             userTypeCookie.setPath("/"); // 设置Cookie的路径
             response.addCookie(userTypeCookie);
-
+//
             Cookie departmentIdCookie = new Cookie("CurrentDepartmentId", String.valueOf(employee.getBelongToDepartment().getId()));
-            departmentIdCookie.setMaxAge(3600); // 设置Cookie过期时间，单位为秒
             departmentIdCookie.setPath("/"); // 设置Cookie的路径
             response.addCookie(departmentIdCookie);
+
+//            session.setAttribute("CurrentUserId", user_id);
+//            session.setAttribute("CurrentUserType", user.getUserType());
+//            session.setAttribute("CurrentDepartmentId", employee.getBelongToDepartment().getId());
+
+//            response.addCookie(new Cookie("CurrentUserId", String.valueOf(user_id)));
+//            response.setHeader("Access-Control-Allow-Credentials", "true");
 
             return new ResponseEntity<>("Successful", HttpStatus.OK);
         }else {

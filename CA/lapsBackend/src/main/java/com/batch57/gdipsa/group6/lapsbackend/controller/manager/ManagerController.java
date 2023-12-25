@@ -147,6 +147,10 @@ public class ManagerController {
 
             return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
         }
+        else{
+            System.out.println(application.getEmployee().getUser_id() + " " + application.getApplicationStatus() + " " + status);
+//            return new ResponseEntity<>(manager_id + " " + application_id + " " + status, HttpStatus.OK);
+        }
         /**
          * 被包裹的这部分逻辑是让employee 对自己已经approved的申请 进行cancel操作
          */
@@ -234,6 +238,5 @@ public class ManagerController {
 
         return new ResponseEntity<>(curStatus + " -> " + status + " is not allowed", HttpStatus.EXPECTATION_FAILED);
     }
-
 
 }

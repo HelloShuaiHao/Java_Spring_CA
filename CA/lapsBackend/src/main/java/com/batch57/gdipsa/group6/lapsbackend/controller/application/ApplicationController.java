@@ -8,6 +8,8 @@ import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.Applicatio
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.CompensationLeaveValidator;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.user.employeeInterfaceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +44,7 @@ import static org.aspectj.runtime.internal.Conversions.booleanValue;
  * LocalDateTime fromDate;
  *
  */
-@CrossOrigin
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001" }, allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/application")
 public class ApplicationController {
@@ -243,6 +245,26 @@ public class ApplicationController {
         }
     }
 
+    @GetMapping("/get-applied-updated-application-by-employee-id/{user_id}")
+    public ResponseEntity<?> GetAppliedUpdatedApplicationByEmployeeId(@PathVariable("user_id") int user_id) {
+        List<Application> applications = applicationService.GetApplicationByEmployeeId(user_id);
+
+        /**
+         * 只要当前年份的申请
+         */
+        applications = applications
+                .stream()
+                .filter(a -> a.getFromDate().getYear() == LocalDate.now().getYear())
+                .toList();
+
+        applications = applications
+                .stream()
+                .filter(a -> a.getApplicationStatus()==APPLICATION_STATUS.APPLIED || a.getApplicationStatus()==APPLICATION_STATUS.UPDATED)
+                .toList();
+
+        return new ResponseEntity<>(applications, HttpStatus.OK);
+    }
+
     /**
      * 返回某个用户某个状态的所有申请
      * @param user_id
@@ -407,8 +429,9 @@ public class ApplicationController {
         }
     }
 
-    @PostMapping("/update-application/{user_id}/{application_id}")
-    public ResponseEntity<?> UpdateApplication(@PathVariable("user_id") int user_id, @PathVariable("application_id") int application_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult ) {
+    @PutMapping("/update-application/{user_id}/{application_id}")
+    public ResponseEntity<?> UpdateApplication(@PathVariable("user_id") int user_id, @PathVariable("application_id") int application_id, @Valid @RequestBody Application inApplication, BindingResult bindingResult) {
+
         // 获取之前的申请
         Application application = applicationService.GetApplicationById(application_id);
         if(application == null) return new ResponseEntity<>("ERROR in finding application", HttpStatus.NOT_FOUND);
@@ -467,28 +490,9 @@ public class ApplicationController {
         application.setDayOff(newApplication.getDayOff());
         application.setEmployeeLeaveType(newApplication.getEmployeeLeaveType());
         application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
-//        if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
-//            application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
-//        }
+
         application.setApplicationStatus(APPLICATION_STATUS.UPDATED);
         return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
-
-//        ResponseEntity<?> result = CreateApplication(user_id, inApplication, bindingResult);
-//        if(result.getBody().getClass() != Application.class) {
-//            return result;
-//        }else {
-//            Application newApplication = (Application) result.getBody();
-//
-//            application.setFromDate(newApplication.getFromDate());
-//            application.setDayOff(newApplication.getDayOff());
-//            application.setEmployeeLeaveType(newApplication.getEmployeeLeaveType());
-//            if(newApplication.getEmployeeLeaveType() == EMPLOYEE_LEAVE_TYPE.COMPENSATION_LEAVE) {
-//                application.setCompensationStartPoint(newApplication.getCompensationStartPoint());
-//            }
-//            application.setApplicationStatus(APPLICATION_STATUS.UPDATED);
-//
-//            return new ResponseEntity<>(applicationService.UpdateApplication(application), HttpStatus.OK);
-//        }
 
 
     }

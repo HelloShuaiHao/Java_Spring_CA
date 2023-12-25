@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin
 @RestController
 @RequestMapping("/api/employee")
 public class EmployeeController {
