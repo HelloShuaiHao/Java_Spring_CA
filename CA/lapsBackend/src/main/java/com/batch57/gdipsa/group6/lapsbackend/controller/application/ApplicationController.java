@@ -107,6 +107,7 @@ public class ApplicationController {
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
         newApplication.setApplyingReason(inApplication.getApplyingReason());
+        newApplication.setContactDetails(inApplication.getContactDetails());
 
         // 检查申请unit是否为正整数
         if(newApplication.getDayOff()<=0) {
@@ -153,6 +154,8 @@ public class ApplicationController {
             return new ResponseEntity<>("The from date is a holiday combined with your current arrangement and public holiday", HttpStatus.EXPECTATION_FAILED);
         }
 
+        // 先JPA可持续化再传递给另外的函数，否则Private Holiday不能保存
+        applicationService.CreateNewApplication(newApplication);
 
         // 通过了所有基本检查，接下来计算可能的假期结束点
         HolidayPoint estimatedEndHolidayPoint = employeeService.GetEndHolidayPointBasedOnApplication(newApplication);
@@ -164,13 +167,11 @@ public class ApplicationController {
             return new ResponseEntity<>("The end date exceeds current calender year.", HttpStatus.EXPECTATION_FAILED);
         }
 
-        // 结束假期也合法，通过创建。
-//        return new ResponseEntity<>(estimatedEndHolidayPoint, HttpStatus.OK);
-
         // 把假期结束的日期给application
         newApplication.setEstimatedToDate(estimatedEndHolidayPoint.getDate());
 
-        Application created =  applicationService.CreateNewApplication(newApplication);
+//        Application created =  applicationService.CreateNewApplication(newApplication);
+        Application created = applicationService.UpdateApplication(newApplication);
 
         if(created == null) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
@@ -456,6 +457,9 @@ public class ApplicationController {
         // 尝试构建新的申请表格
         Application newApplication = new Application(employee, inApplication.getFromDate(), inApplication.getDayOff(), inApplication.getEmployeeLeaveType());
         newApplication.setCompensationStartPoint(inApplication.getCompensationStartPoint());
+        newApplication.setApplyingReason(inApplication.getApplyingReason());
+        newApplication.setContactDetails(inApplication.getContactDetails());
+
 
         // 检查用户是否有资格申请annual leave
         boolean isApplicable = true;

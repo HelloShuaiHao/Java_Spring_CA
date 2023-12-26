@@ -1,0 +1,32 @@
+ANNUAL_LEAVE
+
+public enum EMPLOYEE_TYPE {
+    ADMINISTRATIVE(14),
+    PROFESSIONAL(18);
+
+Holiday
+32,2023-04-22, weekend
+33,2023-04-23, weekend + Hari Raya Puasa
+109,2023-04-24, Hari Raya Puasa
+
+34,2023-04-29,true,weekend
+35,2023-04-30,true,weekend
+107,2023-05-01,false,Labour Day
+
+
+FromDate: 20 April 2023
+Employee: 2
+
+1. the ADMINISTRATIVE employee
+day=8 < 14
+    EstimatedToDate: 2023-05-03
+18 < day=20
+    EstimatedToDate: fail
+
+2. the PROFESSIONAL employee
+day=8 < 14
+    EstimatedToDate: 2023-05-03
+14 <= day=15 <= 18
+    EstimatedToDate: 2023-05-15
+18 < day=20
+    EstimatedToDate: fail

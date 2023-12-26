@@ -5,6 +5,7 @@ import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.USER_TYPE;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.PrivateHoliday;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.userinfo.User;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
@@ -41,6 +42,7 @@ public class Employee extends User {
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     List<EmployeeSchedule> schedules;
+
 
     @JsonProperty("email")
     @Email
@@ -115,5 +117,7 @@ public class Employee extends User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
 
 }

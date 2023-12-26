@@ -2,6 +2,7 @@ package com.batch57.gdipsa.group6.lapsbackend.model.holiday;
 
 import com.batch57.gdipsa.group6.lapsbackend.model.application.Application;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,7 @@ public class EmployeeSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JsonIgnore
     @ManyToOne
     private Employee employee;
 

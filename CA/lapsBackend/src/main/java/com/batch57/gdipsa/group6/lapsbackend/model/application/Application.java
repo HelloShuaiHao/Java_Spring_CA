@@ -3,6 +3,7 @@ package com.batch57.gdipsa.group6.lapsbackend.model.application;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.APPLICATION_STATUS;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.COMPENSATION_START_POINT;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.PrivateHoliday;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.EMPLOYEE_LEAVE_TYPE;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,6 +12,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Application 只专注于最简单的原子形式
@@ -70,7 +73,15 @@ public class Application {
     private String workDissemination;
     private String contactDetails;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL)
+    private List<PrivateHoliday> privateHolidays;
+
+    @JsonIgnore
+    boolean isPrivateHolidayProcessed;
+
     public Application() {
+        isPrivateHolidayProcessed = false;
     }
 
     public Application(Employee employee, LocalDate fromDate, Integer dayOff, EMPLOYEE_LEAVE_TYPE employeeLeaveType) {
@@ -169,5 +180,37 @@ public class Application {
 
     public void setReviewedComment(String reviewedComment) {
         this.reviewedComment = reviewedComment;
+    }
+
+    public String getContactDetails() {
+        return contactDetails;
+    }
+
+    public void setContactDetails(String contactDetails) {
+        this.contactDetails = contactDetails;
+    }
+
+    public String getWorkDissemination() {
+        return workDissemination;
+    }
+
+    public void setWorkDissemination(String workDissemination) {
+        this.workDissemination = workDissemination;
+    }
+
+    public List<PrivateHoliday> getPrivateHolidays() {
+        return privateHolidays;
+    }
+
+    public void setPrivateHolidays(List<PrivateHoliday> privateHolidays) {
+        this.privateHolidays = privateHolidays;
+    }
+
+    public boolean isPrivateHolidayProcessed() {
+        return isPrivateHolidayProcessed;
+    }
+
+    public void setPrivateHolidayProcessed(boolean privateHolidayProcessed) {
+        isPrivateHolidayProcessed = privateHolidayProcessed;
     }
 }

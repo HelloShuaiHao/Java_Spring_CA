@@ -6,8 +6,10 @@ import com.batch57.gdipsa.group6.lapsbackend.model.department.Department;
 import com.batch57.gdipsa.group6.lapsbackend.model.enumLayer.*;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.EmployeeSchedule;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.HolidayPoint;
+import com.batch57.gdipsa.group6.lapsbackend.model.holiday.PrivateHoliday;
 import com.batch57.gdipsa.group6.lapsbackend.model.holiday.PublicHoliday;
 import com.batch57.gdipsa.group6.lapsbackend.model.user.employee.model.Employee;
+import com.batch57.gdipsa.group6.lapsbackend.repository.holiday.privateHolidayRepository;
 import com.batch57.gdipsa.group6.lapsbackend.repository.user.employeeRepository;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.application.ApplicationInterfaceImplementation;
 import com.batch57.gdipsa.group6.lapsbackend.serviceLayer.department.DepartmentInterfaceImplementation;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,6 +43,8 @@ public class employeeInterfaceImpl implements employeeInterface {
     private employeeScheduleInterfaceImplementation employeeScheduleService;
     @Autowired
     private publicHolidayInterfaceImplementation publicHolidayService;
+    @Autowired
+    private privateHolidayRepository privateHolidayRepository;
 
     @Override
     public void CreateEmployee(Employee employee) {
@@ -144,15 +149,34 @@ public class employeeInterfaceImpl implements employeeInterface {
         List<EmployeeSchedule> employeeSchedules = employeeScheduleService.GetScheduleByEmployeeId(user_id);
 
         Set<LocalDate> localDateSet = new HashSet<>();
-        employeeSchedules
-                .forEach(s -> {
-                    LocalDate start = s.getStart().getDate();
-                    LocalDate end = s.getEnd().getDate();
-                    while (!start.isAfter(end)) {
-                        localDateSet.add(start);
-                        start = start.plusDays(1);
-                    }
+
+//        employeeSchedules
+//                .forEach(s -> {
+//                    LocalDate start = s.getStart().getDate();
+//                    LocalDate end = s.getEnd().getDate();
+//                    while (!start.isAfter(end)) {
+//                        localDateSet.add(start);
+//                        start = start.plusDays(1);
+//                    }
+//                });
+
+        /**
+         * 上面这个算法是不够准确的，真正准确的是需要参考application里的private holiday, 因为可能内部包裹的假期被取消了
+         */
+        List<Application> applications = applicationService.GetApplicationByEmployeeId(user_id);
+        // 过滤已经通过的申请
+        applications = applications
+                .stream()
+                .filter(a -> a.getApplicationStatus()==APPLICATION_STATUS.APPROVED)
+                .collect(Collectors.toList());
+        applications
+                .forEach(a -> {
+                    a.getPrivateHolidays()
+                            .forEach(p -> {
+                                localDateSet.add(p.getDate());
+                            });
                 });
+
         return localDateSet;
     }
 
@@ -223,6 +247,12 @@ public class employeeInterfaceImpl implements employeeInterface {
 
         //计算如果想要放dayOFF天，排期会到哪里
         estimatedToDate = application.getFromDate();
+
+        PrivateHoliday newPrivateHoliday = new PrivateHoliday(estimatedToDate, application);
+        if(!application.isPrivateHolidayProcessed()) {
+            privateHolidayRepository.save(newPrivateHoliday);
+        }
+
         System.out.println("day off: " + dayOff);
         while(dayOff > 1) {
             // 第一天是肯定没有占用的，不然也不会进入这个方法，等于说进入这个循环，就是从第二天开始，所以直接+1
@@ -230,39 +260,24 @@ public class employeeInterfaceImpl implements employeeInterface {
 
             if(curHolidayDate.contains(estimatedToDate)) {
                 // 发现了占用 do nothing
+
             }else {
                 // 没有占用
                 dayOff--;
+                if(!application.isPrivateHolidayProcessed()) {
+                    // 这里括号括起来是为了避免二次执行，因为有两个地方会调用它
+                    // 把真正需要放假的那一天加到private holiday里，在把private holiday加到application里面
+                    newPrivateHoliday = new PrivateHoliday(estimatedToDate, application);
+                    System.out.println(estimatedToDate);
+                    privateHolidayRepository.save(newPrivateHoliday);
+                }
             }
         }
 
+        // 更新数据库里的状态 防止private holiday二次执行
+        application.setPrivateHolidayProcessed(true);
+        applicationService.UpdateApplication(application);
 
-        /**
-         * 下面这个逻辑有错误, 保留做个纪念，长个教训，对于这种非常离散的数据，不要用线段来思考
-         */
-//        if(curHolidayDate.contains(estimatedToDate)) {
-//            // 出现了占用
-//            if(employeeLeaveType == EMPLOYEE_LEAVE_TYPE.ANNUAL_LEAVE) {
-//                // 当前申请是annual leave
-//                if(dayOff <= EMPLOYEE_TYPE.ADMINISTRATIVE.getAnnualLeave()) {
-//                    // 小于等于14天,就不囊括现有的假期,遇到假期顺延
-//                    while(curHolidayDate.contains(estimatedToDate)){
-//                        estimatedToDate = estimatedToDate.plusDays(1);
-//                    }
-//                    // 找到第一个不在假期里的日期
-//                    holidayPoint = new HolidayPoint(estimatedToDate, holidayPoint.getComponent());
-//                }else{
-//                    // 大于14天，需要囊括假期，也就是说不能顺延，最开始的日期就必须结束的日期，把日期标记成null，说明找不到一个合法的假期
-//                    holidayPoint = new HolidayPoint(null, holidayPoint.getComponent());
-//                }
-//            }else{
-//                // 当前申请的是medical leave, 和compensation leave，遇到假期顺延
-//                while(curHolidayDate.contains(estimatedToDate)){
-//                    estimatedToDate = estimatedToDate.plusDays(1);
-//                }
-//                holidayPoint = new HolidayPoint(estimatedToDate, holidayPoint.getComponent());
-//            }
-//        }
         return new HolidayPoint(estimatedToDate,holidayPointComponent);
     }
 
